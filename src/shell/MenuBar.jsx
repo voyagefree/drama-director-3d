@@ -175,6 +175,7 @@ export default function MenuBar({ preferences }) {
 		exportRenderPasses, exportDepthVideo, exportStoryboard, downloadOtioCutList,
 		castDomain, preferencesOpen, setPreferencesOpen, agentOpen, toggleAgent,
 		setToast, embedMode, setProjectStartupOpen, setProjectBrowserOpen,
+		setProjectWorkbenchOpen,
 	} = shell;
 	const [open, setOpen] = useState(null);
 	const [focusFirst, setFocusFirst] = useState(false);
@@ -302,6 +303,10 @@ export default function MenuBar({ preferences }) {
 				</button>
 				<button type="button" role="menuitem" className="menubar-item" onClick={item(() => runStudioAction("project.saveAs"))}>
 					<span className="menubar-item-label">{ko("Save As…", "다른 이름으로 저장…")}</span>
+				</button>
+				<hr className="menubar-separator" />
+				<button type="button" role="menuitem" className="menubar-item" data-testid="menubar-workbench" onClick={item(() => setProjectWorkbenchOpen(true))}>
+					<span className="menubar-item-label">{ko("Project workbench…", "프로젝트 워크벤치…", "项目工作台…")}</span>
 				</button>
 				<hr className="menubar-separator" />
 				{/* One Export menu for every delivery this studio makes (#193,

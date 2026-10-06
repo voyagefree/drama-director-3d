@@ -28,8 +28,8 @@ export default function SubjectBox({ label, value, onChange, onRemove, onPose, p
 						<button
 							type="button"
 							className={"cam-toggle" + (posing ? " active" : "")}
-							aria-label={isKo ? `${label} 포즈 열기` : `Open pose studio for ${label}`}
-							title={isKo ? `${label} 포즈` : `Pose ${label}`}
+							aria-label={ko("Open pose studio", "포즈 스튜디오 열기") + " " + label}
+							title={ko("Pose", "포즈") + " " + label}
 							onClick={onPose}
 						>
 							⌘

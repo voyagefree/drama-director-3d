@@ -70,7 +70,9 @@ export function useStageTransaction() {
 }
 
 export function useStage(appContext) {
-  const [domain] = useState(() => createStageDomain(appContext));
+  // StrictMode replays initializers: reuse this editor's registered owner,
+  // rather than registering a second store whose React result is discarded.
+  const [domain] = useState(() => appContext.storeDomain("stage") ?? createStageDomain(appContext));
   const stage = useDocumentDomain(domain.documentStore, 'stage');
   const [preset, setPreset] = useState('medium');
   const gesture = useRef(null);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { startExportAttempt, track } from "../analytics.js";
 import { downloadPack, requestKeyframePack } from "./keyframe-pack-request.js";
+import { ko } from "../locale.js";
 import {
 	applyCozyScenePatch,
 	COZY_SCENE_OUTPUTS,
@@ -25,7 +26,14 @@ function BridgeHandle({ type, position, id, label }) {
 }
 
 function statusLabel(status) {
-	return ({ idle: "Ready when connected", ready: "Ready", running: "Rendering…", complete: "Render complete", error: "Needs attention" })[status] ?? status;
+	const labels = {
+		idle: ko("Ready when connected", "连接后即可使用"),
+		ready: ko("Ready", "就绪"),
+		running: ko("Rendering…", "渲染中…"),
+		complete: ko("Render complete", "渲染完成"),
+		error: ko("Needs attention", "需要处理"),
+	};
+	return labels[status] ?? status;
 }
 
 function SceneViewport() {
@@ -67,7 +75,7 @@ export default function CozySceneNode({ id = "cozy-scene", data: rawData = {}, s
 			if (typeof window !== "undefined") {
 				window.__cozyclayWorkflow = { ...(window.__cozyclayWorkflow || {}), lastTrack: { event: "export:keyframe_pack", entries: result.entries.length, source: "workflow" } };
 			}
-			setPack({ pending: false, message: `Pack ready: ${result.name} (${result.entries.length} files)`, error: "" });
+			setPack({ pending: false, message: ko("Pack ready: {name} ({count} files)", "压缩包就绪：{name}（{count} 个文件）").replace("{name}", result.name).replace("{count}", String(result.entries.length)), error: "" });
 		} catch (error) {
 			attempt.fail(error);
 			setPack({ pending: false, message: "", error: error?.message || String(error) });
@@ -132,30 +140,30 @@ export default function CozySceneNode({ id = "cozy-scene", data: rawData = {}, s
 				    still, and replacing the frame with it left Play ticking a counter
 				    over a dead picture (#218). The capture rides along as a thumbnail. */}
 				<SceneViewport />
-				{data.preview === "render" && data.lastOutput?.renderUrl && <figure className="cozy-scene-render-thumb"><img src={data.lastOutput.renderUrl} alt="Captured scene frame" /><figcaption>Last render</figcaption></figure>}
-				{data.preview === "render" && <div className="cozy-scene-preview-copy"><strong>Live previs</strong><span>{data.statusMessage || "Open Studio to edit the scene"}</span></div>}
+				{data.preview === "render" && data.lastOutput?.renderUrl && <figure className="cozy-scene-render-thumb"><img src={data.lastOutput.renderUrl} alt="Captured scene frame" /><figcaption>{ko("Last render", "上次渲染")}</figcaption></figure>}
+				{data.preview === "render" && <div className="cozy-scene-preview-copy"><strong>{ko("Live previs", "实时预演")}</strong><span>{data.statusMessage || ko("Open Studio to edit the scene", "打开 Studio 编辑场景")}</span></div>}
 			</section>
 
 			<section className="cozy-scene-controls" aria-label="Scene controls">
 				<div className="cozy-scene-control-row">
-					<button type="button" className="cozy-scene-button" onClick={() => emit({ controls: { playing: !data.controls.playing } })} aria-label={data.controls.playing ? "Pause scene" : "Play scene"} aria-pressed={data.controls.playing}>{data.controls.playing ? "Pause" : "Play"}</button>
-					<button type="button" className="cozy-scene-button" onClick={() => openScene?.({ id, data })}>Open Studio</button>
-					<button type="button" className="cozy-scene-send" onClick={sendToAi} disabled={pack.pending} title="Export this shot's keyframe pack for an AI video model">{pack.pending ? "Packing…" : "Send to AI"}</button>
-					<button type="button" className="cozy-scene-run" onClick={() => run?.({ id, data })} disabled={data.status === "running"}>{data.status === "running" ? "Rendering…" : "Run"}</button>
+					<button type="button" className="cozy-scene-button" onClick={() => emit({ controls: { playing: !data.controls.playing } })} aria-label={data.controls.playing ? ko("Pause scene", "暂停场景") : ko("Play scene", "播放场景")} aria-pressed={data.controls.playing}>{data.controls.playing ? ko("Pause", "暂停") : ko("Play", "播放")}</button>
+					<button type="button" className="cozy-scene-button" onClick={() => openScene?.({ id, data })}>{ko("Open Studio", "打开 Studio")}</button>
+					<button type="button" className="cozy-scene-send" onClick={sendToAi} disabled={pack.pending} title={ko("Export this shot's keyframe pack for an AI video model", "导出此镜头的关键帧包，用于 AI 视频模型")}>{pack.pending ? ko("Packing…", "打包中…") : ko("Send to AI", "发送到 AI")}</button>
+					<button type="button" className="cozy-scene-run" onClick={() => run?.({ id, data })} disabled={data.status === "running"}>{data.status === "running" ? ko("Rendering…", "渲染中…") : ko("Run", "运行")}</button>
 				</div>
-				<label className="cozy-scene-frame-control">Frame <input aria-label="Scene frame" type="range" min="0" max={maxFrame} value={Math.min(data.frame, maxFrame)} onChange={(event) => emit({ frame: Number(event.currentTarget.value), controls: { playing: false } })} /> <output aria-live="polite">{Math.min(data.frame, maxFrame)}/{maxFrame}</output></label>
+				<label className="cozy-scene-frame-control">{ko("Frame", "帧")} <input aria-label="Scene frame" type="range" min="0" max={maxFrame} value={Math.min(data.frame, maxFrame)} onChange={(event) => emit({ frame: Number(event.currentTarget.value), controls: { playing: false } })} /> <output aria-live="polite">{Math.min(data.frame, maxFrame)}/{maxFrame}</output></label>
 				<div className="cozy-scene-camera-row" aria-label="Camera orbit controls">
 					<button type="button" onClick={() => emit({ controls: { camera: { yaw: data.controls.camera.yaw - 15 } } })} aria-label="Orbit camera left">◀</button>
-					<span>Camera {Math.round(data.controls.camera.yaw)}° / {Math.round(data.controls.camera.pitch)}°</span>
+					<span>{ko("Camera {yaw}° / {pitch}°", "镜头 {yaw}° / {pitch}°").replace("{yaw}", String(Math.round(data.controls.camera.yaw))).replace("{pitch}", String(Math.round(data.controls.camera.pitch)))}</span>
 					<button type="button" onClick={() => emit({ controls: { camera: { yaw: data.controls.camera.yaw + 15 } } })} aria-label="Orbit camera right">▶</button>
 				</div>
 				<div className="cozy-scene-handoff">
-					<button type="button" className="cozy-scene-video" onClick={() => sendToVideo?.({ id, data })} title="Add a Video node fed by this scene's render">→ Video</button>
-					<p className="cozy-scene-hint">Play to check the previs, then send render → Video to generate a clip.</p>
+					<button type="button" className="cozy-scene-video" onClick={() => sendToVideo?.({ id, data })} title={ko("Add a Video node fed by this scene's render", "添加一个由本场景渲染驱动的视频节点")}>{ko("→ Video", "→ 视频")}</button>
+					<p className="cozy-scene-hint">{ko("Play to check the previs, then send render → Video to generate a clip.", "先播放检查预演，再把渲染 → 视频发送给 AI 生成片段。")}</p>
 				</div>
 			</section>
 
-			<footer className="cozy-scene-node-footer"><span>{data.assetInputs.length} asset{data.assetInputs.length === 1 ? "" : "s"}</span><span>{data.motionInputs.length} motion{data.motionInputs.length === 1 ? "" : "s"}</span></footer>
+			<footer className="cozy-scene-node-footer"><span>{ko("{count} assets", "{count} 个资产").replace("{count}", String(data.assetInputs.length))}</span><span>{ko("{count} motions", "{count} 个动作").replace("{count}", String(data.motionInputs.length))}</span></footer>
 			<div className="cozy-scene-node-outputs" aria-label="Scene outputs">
 				{COZY_SCENE_OUTPUTS.map((spec) => <Handle key={spec.id} {...handleProps(spec, "source", "right")} />)}
 			</div>

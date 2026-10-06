@@ -186,9 +186,9 @@ export const PANEL_PRESENTATIONS = Object.freeze({
 		steer: true,
 		history: true,
 		persistWidth: true,
-		emptyTitle: "Direct the scene",
-		emptyHint: (sceneName) => `Ask for blocking, a camera move, or a rendered frame from \u201C${sceneName}\u201D.`,
-		composerPlaceholder: "Ask the agent to block, frame or render\u2026",
+		emptyTitle: ko("Direct the scene", "导演场景"),
+		emptyHint: (sceneName) => ko(`Ask for blocking, a camera move, or a rendered frame from \u201C${sceneName}\u201D.`, `\u201C${sceneName}\u201D에서 블로킹, 카메라 무빙, 렌더 프레임을 요청하세요.`, `从“${sceneName}”请求布局、机位移动或渲染帧。`),
+		composerPlaceholder: ko("Ask the agent to block, frame or render\u2026", null, "向智能体请求布局、取景或渲染…"),
 	}),
 	studio: Object.freeze({
 		toolLabels: STUDIO_TOOL_LABELS,
@@ -199,9 +199,9 @@ export const PANEL_PRESENTATIONS = Object.freeze({
 		steer: false,
 		history: true,
 		persistWidth: false,
-		emptyTitle: ko("Direct the scene", "\uC7A5\uBA74\uC744 \uC5F0\uCD9C\uD558\uC138\uC694"),
-		emptyHint: (sceneName) => ko(`Ask for blocking, a camera move, or a motion take in \u201C${sceneName}\u201D.`, `\u201C${sceneName}\u201D\uC5D0\uC11C \uBE14\uB85C\uD0B9, \uCE74\uBA54\uB77C \uC6C0\uC9C1\uC784, \uBAA8\uC158 \uD14C\uC774\uD06C\uB97C \uC694\uCCAD\uD558\uC138\uC694.`),
-		composerPlaceholder: ko("Ask the agent to block, frame or animate\u2026", "\uBE14\uB85C\uD0B9\u00B7\uAD6C\uB3C4\u00B7\uBAA8\uC158\uC744 \uC694\uCCAD\uD558\uC138\uC694\u2026"),
+		emptyTitle: ko("Direct the scene", "\uC7A5\uBA74\uC744 \uC5F0\uCD9C\uD558\uC138\uC694", "导演场景"),
+		emptyHint: (sceneName) => ko(`Ask for blocking, a camera move, or a motion take in \u201C${sceneName}\u201D.`, `\u201C${sceneName}\u201D\uC5D0\uC11C \uBE14\uB85C\uD0B9, \uCE74\uBA54\uB77C \uC6C0\uC9C1\uC784, \uBAA8\uC158 \uD14C\uC774\uD06C\uB97C \uC694\uCCAD\uD558\uC138\uC694.`, `向“${sceneName}”请求布局、机位移动或动作片段。`),
+		composerPlaceholder: ko("Ask the agent to block, frame or animate\u2026", "\uBE14\uB85C\uD0B9\u00B7\uAD6C\uB3C4\u00B7\uBAA8\uC158\uC744 \uC694\uCCAD\uD558\uC138\uC694\u2026", "向智能体请求布局、取景或动画…"),
 	}),
 });
 
@@ -580,6 +580,13 @@ export const PROVIDER_ENV_VARS = {
 	google: ["GEMINI_API_KEY", "GOOGLE_API_KEY"],
 	openrouter: ["OPENROUTER_API_KEY"],
 	cliproxy: ["CLIPROXY_API_KEY"],
+	// 国内平台（内部二次开发新增）
+	deepseek: ["DEEPSEEK_API_KEY"],
+	"moonshotai-cn": ["MOONSHOT_API_KEY"],
+	"kimi-coding": ["KIMI_API_KEY"],
+	"qwen-token-plan-cn": ["QWEN_TOKEN_PLAN_CN_API_KEY"],
+	"minimax-cn": ["MINIMAX_CN_API_KEY"],
+	"zai-coding-cn": ["ZAI_CODING_CN_API_KEY"],
 };
 
 /** "set by <ENV_VAR>" for a provider whose key comes from the environment. */
@@ -877,6 +884,12 @@ const MOCK_PROVIDER_LABELS = [
 	["google", "Google Gemini"],
 	["openrouter", "OpenRouter"],
 	["cliproxy", "CLIProxyAPI"],
+	["deepseek", "DeepSeek（深度求索）"],
+	["moonshotai-cn", "Kimi（月之暗面）"],
+	["kimi-coding", "Kimi Coding"],
+	["qwen-token-plan-cn", "通义千问（阿里云百炼）"],
+	["minimax-cn", "MiniMax（海螺）"],
+	["zai-coding-cn", "智谱 GLM（Z.AI）"],
 ];
 const MOCK_ENV_PROVIDER = "google";
 /** The scripted `/agent/models` catalogue: every provider carries its own
@@ -893,6 +906,12 @@ const MOCK_PROVIDER_MODELS = {
 	google: [{ id: "gemini-3-pro", label: "Gemini 3 Pro", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
 	openrouter: [{ id: "deepseek-v3", label: "DeepSeek V3", efforts: ["none"], defaultEffort: "none" }],
 	cliproxy: [{ id: "claude-sonnet-5", label: "Claude Sonnet 5", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
+	deepseek: [{ id: "deepseek-v4-pro", label: "DeepSeek V4 Pro", efforts: ["none", "low", "high", "max"], defaultEffort: "low" }],
+	"moonshotai-cn": [{ id: "kimi-k3", label: "Kimi K3", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
+	"kimi-coding": [{ id: "kimi-for-coding", label: "Kimi For Coding", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
+	"qwen-token-plan-cn": [{ id: "qwen3.8-max", label: "Qwen3.8 Max", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
+	"minimax-cn": [{ id: "MiniMax-M3", label: "MiniMax M3", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
+	"zai-coding-cn": [{ id: "glm-5.3", label: "GLM 5.3", efforts: ["none", "low", "medium", "high"], defaultEffort: "medium" }],
 };
 /** A ChatGPT model the sidecar learns about from the live catalogue, which it
  * can only read with the credential: signing out does not merely draw it

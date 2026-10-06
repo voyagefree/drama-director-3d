@@ -1,4 +1,5 @@
 import { SCENES_STORAGE_KEY, readSceneDocument } from "../scenes.js";
+import { ko } from "../locale.js";
 
 export const MOTION_INPUT_NODE_TYPE = "motion-input";
 export const MOTION_INPUT_NODE_VERSION = 1;
@@ -23,7 +24,7 @@ export function normalizeMotionInputData(input = {}) {
 	return {
 		type: MOTION_INPUT_NODE_TYPE,
 		version: MOTION_INPUT_NODE_VERSION,
-		label: text(source.label, "Motion Input"),
+		label: text(source.label, ko("Motion Input", "动作输入")),
 		url: url || objectUrl,
 		objectUrl: objectUrl || null,
 		fileName: text(source.fileName),

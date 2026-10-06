@@ -16,6 +16,7 @@
 
 import { SCENES_VERSION } from "./scenes.js";
 import { ASSET_MAX_SOURCE_BYTES, assetIdForBytes, isAssetId, isImageAssetId, isMeshAssetId, meshIdForBytes, normalizeAsset, referencedAssetIds } from "./scene-assets.js";
+import { normalizeEpisodes, normalizeCastLibrary } from "./project-episodes.js";
 
 export const PROJECT_VERSION = 4;
 export const PROJECT_EXTENSION = ".cclayproject";
@@ -368,7 +369,7 @@ function readEmbeddedMotions(value, report) {
  * the project uses. Throws `resources-too-large` when one motion or the whole
  * manifest exceeds its budget.
  */
-export function createProjectDocument({ scenesDocument, workspaceLayout, customPoses, name, assets, motions, savedAt, workflow }) {
+export function createProjectDocument({ scenesDocument, workspaceLayout, customPoses, name, assets, motions, savedAt, workflow, episodes, castLibrary }) {
 	const assetRecords = new Map();
 	for (const record of Array.isArray(assets) ? assets : []) {
 		const asset = embeddedAsset(record);
@@ -410,6 +411,11 @@ export function createProjectDocument({ scenesDocument, workspaceLayout, customP
 		poseLibrary: Array.isArray(customPoses) ? customPoses : [],
 		workflow: normalizeWorkflowGraph(workflow),
 		resources: { assets: embeddedAssets, motions: embeddedMotions },
+		// Short-drama authoring layers: episodes group scenes under a script,
+		// castLibrary holds project-wide reusable characters. Optional v4
+		// fields — older files without them normalise to empty lists.
+		episodes: normalizeEpisodes(episodes),
+		castLibrary: normalizeCastLibrary(castLibrary),
 	};
 }
 
@@ -461,6 +467,8 @@ export function readProjectDocument(raw) {
 			assets,
 			motions,
 			workflow,
+			episodes: normalizeEpisodes(parsed.episodes),
+			castLibrary: normalizeCastLibrary(parsed.castLibrary),
 		},
 	};
 }

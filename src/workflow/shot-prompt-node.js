@@ -2,12 +2,13 @@
 // assembly here — no React, no DOM — lets the node, the workflow runner, and
 // the unit test share one definition of what a Shot Prompt node produces.
 import { buildShotPrompt } from "../shot-prompt.js";
+import { ko } from "../locale.js";
 
 export const SHOT_PROMPT_TARGETS = Object.freeze(["image", "video"]);
 
 /** Defaults a fresh Shot Prompt node starts with. */
 export function shotPromptNodeData() {
-	return { label: "Shot Prompt", target: "image", referenceOwnsCamera: true, prompt: "" };
+	return { label: ko("Shot Prompt", "镜头提示词"), target: "image", referenceOwnsCamera: true, prompt: "" };
 }
 
 /** Pick the prompt target, defaulting anything unknown to "image". */

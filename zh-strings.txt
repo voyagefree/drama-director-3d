@@ -1,0 +1,1173 @@
+﻿8	Camera
+7	Cancel
+7	Delete
+6	Pose
+6	Undo
+5	Clay Lit
+5	Light
+5	Cut
+5	Model
+5	Manage storage
+4	Duplicate
+4	Body contact
+4	Folder
+4	Shot
+4	Loaded
+4	Autosave
+4	Motion
+4	Image
+4	Character
+4	Generate
+4	Units
+4	Frame rate
+4	Export
+4	Name
+4	Speed
+4	Redo
+4	Close
+3	Cancelled
+3	s
+3	Hotkeys
+3	A generation is already running
+3	Object colour
+3	cutout
+3	Centimeters
+3	New
+3	The shot renderer is not ready
+3	Clear
+3	Reference grid
+3	Shading
+3	Shot camera
+3	Mesh
+3	Free
+3	Ready
+3	Generate Motion
+3	Snapping
+3	Foot lock
+3	Checking…
+3	Character not loaded yet
+3	Position
+3	Rig
+3	Scene
+3	Environment
+3	Rotation
+3	Search
+3	Show
+3	Props
+3	Frame
+3	Auto Color
+3	Agent
+3	Scale
+3	Content
+3	Prompt
+3	Recent
+3	Recenter on subject
+3	New Project
+2	Orbit around selection
+2	Unsaved changes
+2	Saving…
+2	Mouse sensitivity
+2	↓ Timeline, Camera Cuts
+2	Captured
+2	Not captured
+2	Fly speed
+2	Rail
+2	Clear the selection
+2	Edge feather
+2	Add at least one Shot before exporting a keyframe pack
+2	Edge shrink
+2	Close tutorial
+2	Transform
+2	Retry keeps the original shot, camera, range and settings; it does not change your edits.
+2	Continue editing
+2	Camera tutorial
+2	Ctrl inverts snapping
+2	The current take has no bridge source — generate it once before editing a path
+2	Done
+2	Invert Y
+2	Tolerance
+2	Rotation step
+2	ROOT PATH
+2	This rig doesn't support collision cleanup
+2	Grid size
+2	AI motion
+2	Viewport
+2	Physics cleanup
+2	Help
+2	Nothing matches this search.
+2	IK Correction
+2	MCP Server
+2	Hide
+2	ARDY Connection
+2	Outliner
+2	Shaded
+2	Keyboard shortcuts
+2	Missing
+2	External URL
+2	Workflow
+2	Pins
+2	Unreadable
+2	In project file
+2	+ New scene
+2	Environment reference
+2	Language
+2	Auto colour
+2	The line-editing backend is not connected yet
+2	Expand inset view
+2	Save
+2	Anonymous analytics
+2	Collapse inset view
+2	Log
+2	Location
+2	Expand content
+2	Units & Frame rate
+2	Rename
+2	Theme
+2	Look through
+2	Plant
+2	Could not open the project
+2	Range
+2	cube
+2	Off
+2	sphere
+2	capsule
+2	Left Leg
+2	Views and shot cameras
+2	Perspective
+2	Add
+2	Influence range
+2	Output aspect ratio
+2	car
+2	Right Arm
+2	Collapse timeline
+2	Choose project
+2	Influence
+2	cylinder
+2	Advanced
+2	cone
+2	chair
+2	plane
+2	T-pose
+2	Draw rail
+2	Relaxed
+2	Open project file…
+2	Contrapposto
+2	Height
+2	Read automatically from the camera position
+2	CAM
+2	Run
+2	START
+2	Pointing
+2	Arms crossed
+2	Hands on hips
+2	Right Leg
+2	Looking back
+2	Body part colours
+2	All
+2	Walking
+2	Seated
+2	Panels
+2	High Angle
+2	Camera Cuts
+2	Apply
+2	Pin
+2	Character color
+2	Character 2
+2	Close-Up
+2	Colour hex
+2	Custom colour
+2	Fit to platforms
+2	Create
+2	Enter applies · Esc cancels
+2	Cleared the current motion and applied the pose
+2	Pose applied
+2	Preview
+2	Character 1
+2	Characters
+2	Generating…
+2	Body
+2	Drawing…
+2	PROP
+2	Project name
+2	Learn
+2	Hands up
+2	Retry connection
+2	Back to constant speed — clears the curve and every cut
+2	Left Arm
+2	Expand timeline
+2	Head
+2	Reset curve
+2	Samples
+1	Placement
+1	Joint
+1	Warm ↔ Cool
+1	You can still orbit (Alt+drag), pan and fly freely — the edit survives it. It was aimed through one lens, so while the view is elsewhere the line is drawn ghosted and a new pull waits; Generate, undo and Reset work from anywhere.
+1	Brightness
+1	Drag the path
+1	Scrub to a moment, then drag the green handle to where the joint should be. The take keeps its own timing; only that instant is pinned.
+1	How many frames a pull carries along the path
+1	Edit the selected subject's placement, turn and size. Drag the Transform tool in the viewport for direct manipulation.
+1	Frame range
+1	Environment description
+1	A picture of this location. It travels with every framing capture so a render takes its materials, palette and lighting from the real place.
+1	I have an environment sheet
+1	Draw along the path to reroute that section — the frames you drew over become the range, and the take's own timing is kept. Or grab a yellow dot and pull.
+1	Look / style
+1	Stage position — does not change the take
+1	Joint whose path is edited
+1	Drag the sun in the scene to move the light. Shadows and warmth follow it.
+1	Pin a moment
+1	Pinning moments
+1	Environment reference set
+1	Path editing on
+1	Cut out
+1	Untitled Project
+1	Bring back
+1	Identity reference
+1	Identity image set
+1	Prompt Blocks
+1	Blocks define what is generated over each frame range. Selecting one also moves editing context to that prompt.
+1	Save Project As…
+1	Open Project…
+1	Save Project
+1	A character sheet or photo of this person. It travels with every framing capture so a render keeps the same face, hair and wardrobe.
+1	Auto-detect background
+1	Tolerance is how far a drag spreads: low keeps to one flat colour, high walks across a shaded wall. It applies to the next drag and to Auto-detect, not to what is already purple.
+1	Removing…
+1	Nothing is marked yet
+1	auto 
+1	Save current pose
+1	Identity image
+1	Save the pose the character is in right now — with a motion loaded, that is the current frame plus IK corrections
+1	Brush size
+1	Brush
+1	Untitled motion
+1	Put it back in the set, where it is now
+1	Attached to
+1	Detach
+1	(none)
+1	Parent
+1	Line editing
+1	The joint's own path is drawn on the viewport — grab a point on it and pull, or draw a new path on empty space; the joint then follows it exactly. The view still orbits normally (Alt+drag).
+1	light position
+1	Type a value and press Enter, or drag a number sideways to scrub (Shift for fine).
+1	Reset light
+1	Cut out grows the selection from wherever you drag; Bring back is the same growth fenced to what is already selected, so one drag returns a wrongly-cut region whole. Applying removes exactly what is purple and trims the empty margin — the card keeps the original photograph and this selection, so you can come back and change your mind.
+1	This card's background is removed. You are editing the original photograph — apply again to change what goes.
+1	Card width (m)
+1	Background editor — drag over the background to cut it out
+1	describe this motion block
+1	Drag over the background — the cut grows out from wherever the brush touches.
+1	Height (m)
+1	empty = random
+1	Seed
+1	Card height (m)
+1	Clay
+1	No shots yet — use + Add shot in the lane header to create one.
+1	Split at the playhead
+1	+ Add shot
+1	Cut the Full-Body clip at the playhead
+1	Delete shot and leave free-camera time
+1	Crane height — drag a point, click empty time to add one
+1	Split
+1	Duplicate shot
+1	Click the set floor in the Shot view to drop waypoints
+1	Scrub timeline
+1	Clear motion and restore the blocking pose
+1	Clear motion
+1	Add a 2–4 second prompt clip — one action per block
+1	Add a 2 second shot without changing existing shots
+1	IK keys
+1	Crane
+1	Click the set floor in the Shot view to add waypoints
+1	Character added to the scene
+1	Drag — wider is slower, narrower is faster
+1	Trim take end
+1	Root path constraints off
+1	Root path on — click the set floor in the Shot view to drop waypoints; Subject 1 is the frame 0 start
+1	The active character's rig is not loaded
+1	The path already fills the clip — extend the duration or clear a waypoint
+1	Click at a frame to store the current camera framing
+1	Drag to move · edge handles resize · right-click removes
+1	Dolly speed — drag the line; cuts and reset live in the camera bar above
+1	Click the crane graph to add a point; click a point and drag it to change height
+1	Trim take start
+1	Retime segment by stretch
+1	Resize prompt start
+1	Resize prompt end
+1	Sequencer actions
+1	Cut the Body clip at the playhead
+1	Next frame
+1	Next frame (j)
+1	Split the selected Camera Cut at the playhead
+1	Draw or redraw the selected camera rail
+1	Add a prompt block at the playhead
+1	+ Block
+1	Playback transport
+1	Previous frame
+1	Animation timeline
+1	Sequencer
+1	Play playback
+1	Play / pause (Space)
+1	Previous frame (k)
+1	Pause playback
+1	Foot snap — keep the feet planted while you move the body (hips); the knees bend instead of the feet sinking through the floor
+1	Body contact — keep hands, knees, feet, head, and hips above the floor
+1	Load a rig to edit poses
+1	Foot snap
+1	Selected Full-Body segment speed value
+1	Clear loaded motion
+1	Motion controls
+1	Selected Full-Body segment speed
+1	Timeline view tools
+1	Timeline zoom
+1	Add a Camera Cut track block
+1	+ Track
+1	Enable or disable root path constraints (P)
+1	Pose correction tools
+1	Two-finger up/down over FRAME ruler to zoom — click to reset to 1×
+1	Root path mode
+1	Pose saved
+1	Missing character
+1	Root
+1	Nothing to drop
+1	its picture is missing from the store
+1	Project access was not granted — allow access and try again.
+1	Discard unsaved changes and start a new project?
+1	Could not save the project
+1	That starter scene is not in this build
+1	The server did not return a motion job ID.
+1	AI motion generation failed.
+1	Recapture A/B refs with shaded body-part segmentation enabled.
+1	The camera changed between A and B. Capture both poses with the same camera.
+1	Blocks
+1	Again
+1	No AI video motion generations left today
+1	Block fix
+1	Select a Shot block below to edit its camera.
+1	Target model
+1	click a Shot block's lower strip to key the current framing at that frame
+1	Follow cam
+1	Target video model
+1	None
+1	The timeline flags this shot when the cut runs past the model's clip length or leaves its delivery ratios. Nothing is re-timed or re-cropped.
+1	Cut for
+1	Camera rail deleted — Follow keeps the current distance
+1	camera to subject
+1	SCENE 01
+1	Draw the selected Shot's rail in the Top-View
+1	Move keys
+1	derived from the keyframings, not chosen from a list
+1	nearest prime on the cropped filmback
+1	angle relative to the subject's eyes
+1	No body collisions in the clip
+1	AutoPhysics applied · Undo restores the original
+1	No body collisions at this frame
+1	Nothing more to fix
+1	Draw along the path, pull a dot, or pin a moment first
+1	Absolute IK keys in this range override the path edit — remove or re-key them
+1	Already applied. Undo to review this correction again.
+1	Pose exported
+1	Nothing to undo
+1	Nothing to redo
+1	Cleared the motion and posed from the photo — refine it with the handles
+1	Pose read from the photo — refine it with the handles
+1	Pose mode — drag handles in the main view; the shot camera stays frozen in the inset
+1	Pose mode off — keyed poses keep playing
+1	Confirm Replace existing keys before applying this pin.
+1	Pose mode — correct the motion; drag end keys the fix at this frame
+1	The full-body frame is not ready yet. Wait a moment and try the reference capture again.
+1	The full character is not inside the A/B reference. In the shot view, pull the camera back until the head and both feet are visible, then capture again.
+1	This take carries no prompt — add a block and describe it
+1	The shot renderer is not ready.
+1	AI motion generation is locked during QA.
+1	Capture both A and B poses first.
+1	Enable View → Body part colours → Shaded before capturing an A/B reference.
+1	The camera moved between A and B. Capture both refs with the same camera framing.
+1	connecting…
+1	The generated motion came back without verified authored pose keys
+1	The current motion has no bridge source; generate the prompt blocks once before regenerating a trail edit
+1	Trail fix
+1	Describe the motion first — press 4 and add a prompt with + on the Prompt lane
+1	Nothing to redo yet — make a take first
+1	No take yet — block a scene first
+1	This take has no bridge source — generate it once before refining
+1	You can still orbit (Alt+drag), pan and fly freely; the path follows the view until you pull or draw it.
+1	Check today's motion generation route.
+1	Keep planted feet stable through the take.
+1	Shortcuts are read-only here. They stay active whenever focus is outside a text field.
+1	Motion setup
+1	Agent connections are managed by the running studio.
+1	Not connected
+1	Keep contact points when applying corrections.
+1	Status
+1	Alt-drag keeps the selected item at the pivot.
+1	Reverse vertical camera movement.
+1	Right mouse button + WASD
+1	Pointer movement while looking around.
+1	Stage rotation increment.
+1	Hold Ctrl to temporarily reverse snapping.
+1	Keep transforms on the active grid.
+1	Stage movement increment.
+1	Close preferences
+1	Search preferences
+1	Preferences navigation
+1	Preferences
+1	Timeline frame rate
+1	Finalizing MP4; this stage cannot be interrupted.
+1	Preference sections
+1	Reset to defaults
+1	Display distances in the inspector.
+1	Meters
+1	Port
+1	The local command endpoint.
+1	Interval
+1	The current editor default.
+1	Playback and timeline frame rate.
+1	Save a project snapshot after an edit settles.
+1	Delete the selection
+1	Previs studio: stage, pose, camera and motion.
+1	Export keyframe pack
+1	Duplicate object
+1	General
+1	Appearance
+1	Version
+1	Hierarchy
+1	Menu bar
+1	Stage / Pose / Camera / Motion mode
+1	Tutorial
+1	About Cozy Clay
+1	Play / pause
+1	Step one frame
+1	Pick the tool of the current mode
+1	Frame the selection
+1	Give scene objects stable display colours.
+1	Help improve CozyClay with anonymous product events.
+1	Dark keeps the studio dim around the stage; Light uses bright glass panels.
+1	Editor
+1	Solid
+1	Shading mode
+1	Use a dark reference grid instead of the clay deck.
+1	Choose the viewport lighting preview.
+1	Project
+1	Check connection
+1	Input & Camera
+1	Integrations
+1	Dark
+1	Choose the labels used throughout the editor.
+1	Motion generation is optional. Sample motion, camera editing and exports work without a connection.
+1	Retry checks the local motion bridge without changing the current scene.
+1	Retry
+1	Blender-style viewport — dark void with a reference grid instead of the deck
+1	Distinct display colors per object — captures include them while on
+1	Viewport display toggles
+1	Viewport display
+1	Flat
+1	Show the agent chat column (Cmd/Ctrl+B)
+1	Motion trails while posing
+1	Trails
+1	Shot cameras
+1	Show this shot's camera in the preview
+1	Show the Top-View inset
+1	Top
+1	Camera preset
+1	Flat, distinct colour per object — captures include them while on
+1	Shot framing
+1	Shot preset
+1	Frame the shot
+1	Verify the result
+1	Arrange characters
+1	Edit properties
+1	Direct the scene
+1	Ask the agent to block, frame or animate\u2026
+1	Undo an edit
+1	Run an editor action
+1	Block a two-shot
+1	Frame the selected character
+1	Agent panel
+1	Fly speed — scroll while right-dragging to change it
+1	Selection and view
+1	Arrange objects
+1	Light the set warmer
+1	Read the scene
+1	Generate motion from the prompt and blocks
+1	More generate actions
+1	Start over
+1	Take it again
+1	Move
+1	Rotate
+1	Generate actions
+1	Stage
+1	Resize hierarchy and inspector panel
+1	Resize frame monitor
+1	just now
+1	Resize hierarchy panel
+1	MCP connected
+1	MCP offline
+1	Resize shot preview
+1	No MCP client is attached to this studio
+1	Lens — pick a prime or set the field of view
+1	Lens
+1	Refine (edit the path line)
+1	Influence range — how far an edit blends into nearby frames
+1	Mode and tools
+1	View
+1	Add an object, a character or a camera
+1	Tools
+1	Turn Trails on in Show to edit the motion path
+1	Pin (range pin)
+1	Pose fix (IK parts)
+1	Path fix (motion trail)
+1	Rotate camera
+1	Blocks (select and move prompt blocks)
+1	Pinning needs a motion take
+1	Move camera
+1	Add second subject
+1	Video capture
+1	Subjects
+1	Subject
+1	CHECK
+1	FETCHING
+1	Footage → motion
+1	Prepare a source inside the Motion workspace.
+1	Grab a hand, foot, elbow or knee handle in the viewport.
+1	Auto-fix
+1	Falloff
+1	Regenerate
+1	Character rig
+1	Remove subject
+1	Body collisions · Frame
+1	Body collisions · Clip
+1	Paste
+1	Use URL
+1	https://…/boxing.mp4
+1	Multi-Model video URL
+1	Extracting…
+1	Extract again
+1	Downloading…
+1	Decoding…
+1	Local video file
+1	Upload from this computer
+1	PROBING
+1	IDLE
+1	Video URL
+1	Use a hosted or local route
+1	Choose video
+1	No file selected
+1	generate fresh
+1	keep original
+1	Keep current take
+1	How hard the regeneration holds the loaded take outside the frames you edited.
+1	Take versions
+1	No takes yet. Generate creates one.
+1	the drawn path replaces the root; the body keeps the take's style
+1	Takes
+1	Pull the path on the viewport first
+1	Generate the line edit
+1	Previewing the pull…
+1	The viewport is showing this edit at full quality — press Generate to keep it as the take.
+1	Cancel run
+1	Motion generation complete
+1	Reset the curve
+1	Exit line editing (Esc)
+1	On
+1	Unavailable
+1	Platform fit preview — review before applying
+1	Physics cleanup preview — review before applying
+1	IK
+1	Path fix
+1	Select a body group to pose it in the viewport.
+1	Active tool
+1	Import image as cutout
+1	A GLB, OBJ or FBX model standing in the set
+1	Everything you add to the set lives here. Pick one to edit it, or click it in the shot view. Drop a picture anywhere here — or on the shot view — to stand it up as a cutout. You can also drop a .glb, .obj or .fbx to import a 3D object.
+1	A photo of the real thing, standing in the set as a card
+1	Replace
+1	Choose image
+1	Import 3D object
+1	Choose a reference picture
+1	Extract motion
+1	Window
+1	Add a shot first — a pack describes one cut
+1	File
+1	Edit
+1	Exports: keyframe pack, video, passes, storyboard, cut list
+1	First/last frames, clip, camera and prompt as one zip — hold Shift for every shot
+1	Open…
+1	Save As…
+1	Collapse Agent
+1	Collapse Agent (Cmd/Ctrl+B)
+1	Ask the agent…
+1	Resize Details and Agent
+1	Back to the default pose
+1	Library
+1	Untitled Scene
+1	Couldn't find the selected pose — pick again
+1	Download OTIO cut list
+1	OTIO cut list
+1	Add a shot first — a storyboard is one row per shot
+1	Storyboard (PNG)
+1	Preferences…
+1	Open Workflow
+1	Add a shot to export OTIO
+1	Add a shot to export video or OTIO
+1	Video (mp4)
+1	Depth and normal conditioning plates of the current framing
+1	Keyframe pack (zip)
+1	Render the shot to an MP4 — camera move and character motion, no editor chrome
+1	Depth (mp4)
+1	Contact sheet of every shot with its prompt
+1	Depth + normal passes
+1	Depth pass of the whole shot as an mp4 for video-model conditioning
+1	Resize bottom dock
+1	Dock
+1	Motion generation started
+1	Motion generation finished
+1	Body contact on — body markers stay above the floor
+1	Foot snap off — the feet follow the body
+1	Loaded take
+1	Body contact off — floor constraints are disabled
+1	Checking for the dev bridge…
+1	GVHMR extraction runs on the GPU box (about a minute per 15 s of footage).
+1	Engine…
+1	Mocap quality gate passed
+1	Animation
+1	Assets
+1	GVHMR extraction is unavailable until the local GPU bridge is connected.
+1	Locked-off footage with both performers in frame is best.
+1	Selection
+1	Details
+1	Look through the shot camera (Esc returns)
+1	Bone
+1	Delete or Backspace to remove
+1	Open Agent (Cmd/Ctrl+B)
+1	Object actions
+1	Select something in the hierarchy — the scene, the camera, a character, the environment or a prop — and its settings appear here.
+1	Draw this Camera Block's rail in the Top-View
+1	Viewing in the main view
+1	Foot snap on — the feet stay planted while the body moves
+1	Follow rides the subject's motion — without a loaded motion the camera composes a static frame
+1	Back to the editor view (Esc)
+1	Exit
+1	Shot aspect ratio
+1	No shot yet
+1	This session
+1	Search objects
+1	Collapse Content — the Sequencer takes the full width
+1	Content and Log
+1	Drag into the scene to place
+1	Look
+1	Search the log
+1	Folders
+1	No takes for this character yet. Generate Motion creates one.
+1	No saved poses yet. Save one from the pose studio.
+1	No imported props yet. Drop or paste a picture, or drop a .glb, .obj or .fbx into the studio.
+1	No shot cameras yet. Use + Add › Camera in the viewport.
+1	No events yet this session. Notices, generation jobs and exports appear here.
+1	Collapse content
+1	Note
+1	Info
+1	Drag a line here
+1	Click to fly the shot camera
+1	1. Select the shot
+1	2. Draw rail, then drag across the top view
+1	Scroll to push in
+1	Alt + left-drag to circle
+1	Right-drag to look
+1	Hold right, press keys
+1	Dolly
+1	Scroll in the viewport to push in and pull out.
+1	Right-drag in the viewport to look around.
+1	Walk
+1	↘ Shot Camera monitor
+1	Click here
+1	Orbit
+1	Play
+1	Set piece
+1	Restore
+1	Dismiss
+1	Undo object deletion
+1	Project access was not granted.
+1	Untitled model
+1	Untitled image
+1	Image deleted. This session can undo it.
+1	(unreadable image)
+1	Esc · exit
+1	SUBJECT OUT OF FRAME
+1	Look through the shot camera — right-drag, WASD and orbit set the recording lens (Esc returns)
+1	Return to the editor view (Esc)
+1	Later
+1	Object deleted.
+1	A new version of CozyClay is ready.
+1	Reload to update
+1	Basic Shapes
+1	Sets
+1	In use
+1	No stored image assets are used by a scene.
+1	Poses
+1	Shape
+1	Cameras
+1	Motions
+1	Unused by every scene. Delete it?
+1	Deleting…
+1	Matte
+1	Loading details…
+1	Unused
+1	No unused image assets. Every stored image is still used by a scene.
+1	Review unused and in-use stored images. Deleted images can be restored until this page is reloaded.
+1	No stored image assets.
+1	Capture B
+1	Describe & generate
+1	Capture A
+1	Recapture B
+1	Remove B for A-only action mode.
+1	Enter an action description.
+1	Locked until owner testing is complete.
+1	Capture B before generating.
+1	Shaded body-part colours are required for A/B refs.
+1	Enable Shaded
+1	480P shot view
+1	Shaded body-part segmentation ON · A/B capture ready
+1	Remove B
+1	Recapture A
+1	Press Capture A on the current frame
+1	Set the B pose, keep the camera still, then press Capture B
+1	Left blank, this is built from the description above. Edit it and your text is sent verbatim.
+1	Interpolate A→B
+1	Length
+1	Prompt to send
+1	Checking motion generation…
+1	Ready for this motion request
+1	Generate action
+1	Generation requests stay blocked on the server until owner testing is complete.
+1	A→B interpolate
+1	A-only action
+1	Capture A/B in the viewport — close this and use the card.
+1	AI motion mode
+1	Describe the motion from A to B. Example: walk to the bench, turn, and sit
+1	With A only, describe the action. Example: swing the sword overhead and step forward
+1	Describe how the character moves from A to B.
+1	Creates motion from one A pose and an action description.
+1	Frame the shot at the H3 ratio (832×480) in the shot view.
+1	Select, move, key, and play are the core CozyClay loop. You can close this guide and keep blocking.
+1	Follow these four actions to see a result quickly.
+1	Dismiss guide
+1	You made your first shot.
+1	Click again to permanently delete this scene
+1	Confirm delete
+1	Skip guide
+1	Select scene
+1	Open Export
+1	The studio hit a render error
+1	That is the whole camera: look, walk, dolly, orbit, cut, rail, play.
+1	Take this shot with you. Its camera and range stay yours.
+1	Your first 60 seconds
+1	Core loop complete
+1	Scenes autosave as you work, so reloading resumes from the last saved state.
+1	Reload the studio
+1	Lock camera
+1	Unlock camera
+1	The camera changed after A. Restore the A camera.
+1	Capture A first to save the camera reference.
+1	QA lock
+1	Needs attention
+1	Restore A camera
+1	AI motion reference poses
+1	Search Outliner
+1	No matches
+1	IK ON
+1	At least one scene is required
+1	✓ A/B camera framing matched · camera locked
+1	✓ A camera saved · camera locked
+1	AI motion steps
+1	Camera unlocked · recapture A to save a new reference.
+1	overhead
+1	eye level
+1	wide shot
+1	extreme wide shot
+1	knee level
+1	ground level
+1	chest level
+1	hip level
+1	Whip pan
+1	Aerial / drone
+1	Crash zoom in
+1	Dolly-zoom (vertigo)
+1	medium shot
+1	medium-wide shot
+1	extreme close-up
+1	medium close-up
+1	regenerates the whole body
+1	Saved scenes were written by a newer CozyClay — they have been left untouched and this session will not save
+1	rear ¾ L
+1	rear ¾ R
+1	A newer edit comes after this deletion. Use Undo history instead.
+1	That image is no longer in storage
+1	Load a character to pose it — Pose mode edits its rig with IK
+1	That picture format is not supported — use PNG, JPG, WebP or GIF
+1	front
+1	back
+1	aircraft
+1	Plane (aircraft)
+1	front ¾ L
+1	front ¾ R
+1	left profile
+1	right profile
+1	Handheld
+1	Left Elbow
+1	Left Hand
+1	Neck
+1	Left Shoulder
+1	Right Hand
+1	Left Knee
+1	Right Shoulder
+1	Right Elbow
+1	Low Angle
+1	Shot settings
+1	Medium
+1	Wide
+1	Spine
+1	Chest
+1	Torso
+1	Root / Hips
+1	Tilt up
+1	Tilt down
+1	Pan left
+1	Pan right
+1	Crane up
+1	Crane down
+1	Tracking / follow
+1	Orbit / arc
+1	Right Foot
+1	Static / locked-off
+1	Left Foot
+1	Right Knee
+1	Push-in (dolly in)
+1	Pull-out (dolly out)
+1	Zoom in
+1	Zoom out
+1	Path editing on — draw along the path to reroute that section, or grab a dot and pull; the view still orbits normally
+1	Redone
+1	The preview could not be read back
+1	Line editing off
+1	Not saved
+1	Saved
+1	Undone
+1	Save failed
+1	GENERATING
+1	PLAYBACK
+1	Add at least one Shot before exporting a storyboard
+1	Composing the storyboard…
+1	Pins cleared — one edit is one gesture, and this one is now the path
+1	The view moved — the pending edit still applies; the dashed line is that same edit seen from here. Return toward the original view to grab it again, or Generate/undo from here.
+1	Prompt copied to clipboard
+1	Frame download requested. Check your browser's downloads.
+1	Shot view
+1	Top-View
+1	Click or ▸ to expand · drag to move
+1	Click or ▾ to fold · drag to move
+1	 · click to cycle
+1	Look through the shot camera
+1	Resize inset view
+1	Cycle composition guides
+1	Point added — drag it here, or lift it in the scene
+1	3D graphics (WebGL) is turned off in this browser
+1	The graphics context was lost — restoring the stage. If it stays black, reload the page; your work is autosaved.
+1	Graphics restored.
+1	Waiting for the browser to restore it. If this stays, reload the studio — scenes autosave.
+1	Reload
+1	Quit the browser completely (Cmd+Q) and reopen it, or turn on \"Use graphics acceleration when available\" in its settings. chrome://gpu shows the WebGL status.
+1	The 3D view lost its graphics context
+1	Depth and normal passes downloaded
+1	Export could not finish. Retry the same request. For memory or resource problems, close other heavy tabs or use a shorter range / lower output resolution in a new export.
+1	An export is already running
+1	Frame rendering failed. Let the scene finish loading, then retry. If it repeats, shorten the range or reduce output resolution for a new export.
+1	Export cancelled. No further downloads will be requested.
+1	Cancelling at the current work boundary…
+1	Preparing
+1	Export completed. Download requested; check your browser's downloads. The OS save is not confirmed.
+1	Export pipeline completed. The requesting tool handles the file handoff.
+1	That image is used by a scene and was not deleted
+1	That image is now used by a scene and was not deleted
+1	This image's usage changed, so it was not deleted. Please review it again.
+1	This image's scene references changed, so it was not deleted. Please review it again.
+1	MP4 encoding is unavailable. Use a current browser with H.264 WebCodecs support (such as Chrome or Edge), enable hardware acceleration, then retry.
+1	Video encoding failed. Retry the same request. If resources are tight, shorten the shot range or lower output resolution before starting a new export.
+1	The scene changed while deleting, so the image was kept. Please review storage again.
+1	The live editor is disconnected. Reconnect before sending.
+1	Cancel stops at the next frame boundary, before download.
+1	Preparing the renderer and checking MP4 support…
+1	Handing off existing PNGs. Synchronous downloads cannot be cancelled.
+1	Building the ZIP. Cancel takes effect after the current work unit, before download.
+1	Retry same export
+1	Add at least one Shot before exporting OTIO
+1	Encoding the requested frames, not yet a completed file.
+1	Cancel export
+1	Completed
+1	Failed
+1	Encoding
+1	Finalizing
+1	Finalizing MP4. Progress is indeterminate; this stage cannot be interrupted.
+1	Finishing encoder output. Progress is indeterminate.
+1	Depth range sampled
+1	Frames submitted to encoder
+1	Use playhead
+1	Add interval
+1	First frame
+1	Last frame
+1	Unprotect pose
+1	Analyse & preview
+1	Remove interval
+1	Protected
+1	Floor-support hypotheses → force + moment check → pelvis + limbs. Flight is preserved; uncertain support stays flagged. Original stays unchanged until Apply.
+1	Correction strength
+1	Playback mismatch
+1	review before applying
+1	Contact mode
+1	Free / moving
+1	Contact overrides & protected poses
+1	Support point
+1	Knee step / frame
+1	Unsupported floating frames
+1	Max contact drift
+1	Max contact gap
+1	Peak moment residual
+1	Estimated floor support, not measured forces. Hidden props and joint torque limits are not modeled.
+1	Unexplained floating gap
+1	Peak force residual
+1	Corrected preview
+1	Measured
+1	Analysis progress
+1	Original
+1	Max floor depth
+1	Mean contact drift
+1	Before
+1	After
+1	Root acceleration increased
+1	Press “Download start and end frames” to save both PNGs.
+1	Press “Download frame” to save the PNG.
+1	Press “Copy prompt” above, then paste it into your AI service.
+1	Download the frame
+1	Use your AI service's image attach button to upload the start and end frames together.
+1	Use your AI service's image attach button to upload blocking-frame.png.
+1	This result has no frame to download.
+1	Attach the image to your AI
+1	Next · CozyClay motion source
+1	Use this video for mocap extraction
+1	Download start and end frames
+1	Download frame
+1	Copy the prompt
+1	Copied. Paste it into your AI service's prompt box.
+1	The fixed-camera H3 Max Turbo video is attached to the extraction panel as a motion source. Run GVHMR there, then review the resulting take in the timeline.
+1	Handing off to your AI
+1	Unexplained body support
+1	Floor penetration
+1	generate: response has no body stream
+1	generate: stream ended without a done or error event
+1	Knee speed jump
+1	Knee acceleration increased
+1	Contact floats
+1	Contact drift
+1	A video recorded with the recording feature: 
+1	 file. Use it separately from the reference frame in the prompt above.
+1	The prompt describes the scene's content and mood; the frame shows the camera framing. Use both to reproduce this scene as closely as possible.
+1	Optional · Reference video
+1	Language and analytics
+1	bridge unreachable
+1	Learn the camera in seven steps
+1	Settings
+1	Read automatically from the camera tilt
+1	Pitch
+1	Distance
+1	Cap dolly travel speed
+1	Crane points on this rail — click the Shot block's key strip to add one
+1	 pts
+1	Lens height of the selected crane point — click a purple dot in the scene to pick one, double-click the lifted curve to add one
+1	Point height
+1	Stop
+1	Redraw rail
+1	Turn Waypoint off to edit or preview this camera.
+1	Turn Waypoint off
+1	Draw crane height in the Shot box
+1	Pin the instant at the playhead: the spot being passed then never moves again
+1	Shot curve
+1	Draw dolly speed in the Shot box
+1	Set how softly the rig catches up
+1	Damping
+1	Head start
+1	Nearest
+1	Dolly on rail
+1	Camera preview
+1	Aim ahead of subject travel
+1	Look-ahead
+1	Delete this Shot's rail geometry and return to Follow
+1	Delete rail
+1	Remove the selected interior crane point
+1	Remove point
+1	Follow Off
+1	Choose whether the dolly starts at the rail head or the nearest useful point
+1	Keep the camera at the captured distance from the subject
+1	Follow On
+1	Draw a route on the Top-View map to make this prop travel.
+1	Raise feet and body to platforms in the path.
+1	Platform fit progress
+1	Go to first unresolved contact
+1	Wall
+1	Crane height: click to add, click a point to select, drag vertically to change height
+1	average
+1	Remove platform fit
+1	No platforms in the path.
+1	source measured
+1	Peak knee acceleration
+1	Analysis
+1	source measurements reused
+1	Surface unavailable: bone proxy only.
+1	No measured limit exceeded
+1	Peak root acceleration
+1	Measured on skinned mesh surfaces, not bone height.
+1	Fixed facing
+1	Keep going in the last direction after the route ends
+1	Turn to face the direction of travel
+1	Faces travel
+1	Delete this route; the object stands still again
+1	Delete path
+1	Keep going
+1	Loop
+1	Cut at playhead
+1	Redraw path
+1	drag the curve · double-click or the button cuts · Delete removes a cut
+1	Pin the instant at the playhead: the spot being walked then never moves again
+1	Travel speed
+1	fills take
+1	Draw path
+1	Metres per second; 0 spreads the route across the whole take
+1	Browser project store
+1	Project navigation
+1	Recently
+1	Enter a project name to create a project
+1	Choose a template, name the project, then place a character and frame the camera in the editor.
+1	Start a new project
+1	Template categories
+1	Block a shot in three moves
+1	Your pose library is empty. Read a pose out of a photograph, or pose the character and save it — both stay here for every project.
+1	Save the character's current pose
+1	Reset pose
+1	Pose categories
+1	Reading…
+1	From photo
+1	Save pose
+1	Read the pose out of a reference photograph
+1	Create project
+1	No recent projects yet.
+1	Using the browser project store.
+1	Re-allow
+1	Missing object
+1	Load a motion before creating a pin.
+1	 shots
+1	Remove from list
+1	Project templates
+1	Project preview
+1	Recent projects
+1	Refresh
+1	Projects are stored in this browser
+1	Folder access needs to be re-allowed.
+1	template preview
+1	Choose the project storage folder
+1	Apply pose
+1	Local MLX/cpp supports one unconstrained prompt. Sequencing, pinned poses, paths and preserve need the CUDA/SSH route. Line editing needs a configured line-edit route.
+1	Motion generation setup and route guide
+1	Keep this tab open. After restarting the bridge on the same port, retry the connection below.
+1	New generation runs in the local Studio. Save your project here, then open that file in the local Studio to carry over your edits.
+1	PATH START
+1	PATH END
+1	Recheck connection
+1	Add object
+1	The motion backend is unavailable
+1	Switch route in Settings
+1	No motion backend configured
+1	This route cannot run the selected motion request
+1	Motion generation is optional. Sample motion, camera editing and exports work without it. Your scene and prompt blocks stay here while you set it up.
+1	Use an existing motion generation host, then restart your local launcher with:
+1	Open Settings
+1	Motion generation setup
+1	My poses
+1	Close pose studio
+1	Action
+1	Floor
+1	Key pose as IK correction
+1	Clear motion and apply pose
+1	Pose mode is on — applying keys the pose as a full-body correction at the current frame; the motion stays.
+1	A sample motion is moving the character — applying a pose clears it and returns to the blocking pose.
+1	Thinking
+1	Crouch
+1	PLAYER STILL
+1	Wave
+1	Basic
+1	Gesture
+1	Kneel
+1	Jump
+1	The project file would be too large.
+1	Unknown reason
+1	Size
+1	Missing resources
+1	your AI video tool
+1	your selected image model
+1	The project was not saved
+1	OK
+1	The referenced object was deleted.
+1	Invalid target
+1	No pins yet. Choose a part and apply a range.
+1	Missing object target
+1	Browser-only copy
+1	Project resources
+1	Delete pin
+1	Workflow output
+1	Finished scene frame
+1	Camera move made from timeline keyframes
+1	Camera move end frame
+1	End
+1	Copy prompt
+1	Download requested
+1	copied
+1	Copied ✓
+1	 as the reference frame.
+1	 as the reference image.
+1	 as the start frame, and 
+1	 as the end frame.
+1	Close the result
+1	Camera move start frame
+1	Your motion is ready
+1	Your shot is ready
+1	Apply pin
+1	Part
+1	Pin part
+1	Hold a hand or foot across a frame range
+1	Load a motion to enable range pins.
+1	Set In to playhead
+1	Set Out to playhead
+1	In
+1	Out
+1	Out must be on or after In.
+1	Choose a scene object.
+1	Choose a hand or foot.
+1	In and Out must be whole frames.
+1	Hold at In
+1	Range pins
+1	That scene object is no longer available.
+1	Blend must be at least one frame.
+1	Following
+1	Body follows when out of reach
+1	Scene object
+1	Choose an object
+1	Replace existing keys
+1	Update pin
+1	Blend
+1	Replace confirmed
+1	Pin target
+1	Hold where it is at In
+1	Keyboard: I sets In · O sets Out
+1	Target
+1	Follow a scene object's transform and travel path.
+1	Add a scene object to use an object target.
+1	Capture the part's world position at the In frame.
+1	Stick to object

@@ -12,6 +12,7 @@ import PreferencesDialog from "./shell/PreferencesDialog.jsx";
 const LANGUAGES = [
 	{ id: "en", label: "English", action: "Switch to English" },
 	{ id: "ko", label: "한국어", action: "한국어로 전환" },
+	{ id: "zh", label: "中文", action: "切换到中文" },
 ];
 
 export default function SettingsMenu({ motionSetup, motionSetupReveal = 0 }) {
@@ -50,7 +51,8 @@ export default function SettingsMenu({ motionSetup, motionSetupReveal = 0 }) {
 	// the only visible hint that Korean exists used to be the old locale button.
 	// Until a language is stored, a ko-* browser sees the trigger in Korean.
 	const koreanBrowser = typeof navigator !== "undefined" && (navigator.language ?? "").startsWith("ko");
-	const label = !localeChosen && koreanBrowser ? "한국어" : ko("Settings", "설정");
+	const chineseBrowser = typeof navigator !== "undefined" && (navigator.language ?? "").startsWith("zh");
+	const label = !localeChosen && koreanBrowser ? "한국어" : (!localeChosen && chineseBrowser ? "中文" : ko("Settings", "설정"));
 
 	return (
 		<div className="settings-menu-wrap">

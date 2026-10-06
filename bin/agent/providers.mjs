@@ -59,6 +59,13 @@ export const PROVIDERS = [
 	{ id: "google", label: "Google Gemini", auth: "api_key", env: ["GEMINI_API_KEY", "GOOGLE_API_KEY"] },
 	{ id: "openrouter", label: "OpenRouter", auth: "api_key", env: ["OPENROUTER_API_KEY"] },
 	{ id: "cliproxy", label: "CLIProxyAPI", auth: "api_key", env: ["CLIPROXY_API_KEY"] },
+	// 国内主流平台（内部二次开发新增；工厂均来自 @earendil-works/pi-ai 内置）
+	{ id: "deepseek", label: "DeepSeek（深度求索）", auth: "api_key", env: ["DEEPSEEK_API_KEY"] },
+	{ id: "moonshotai-cn", label: "Kimi（月之暗面）", auth: "api_key", env: ["MOONSHOT_API_KEY"] },
+	{ id: "kimi-coding", label: "Kimi Coding", auth: "api_key", env: ["KIMI_API_KEY"] },
+	{ id: "qwen-token-plan-cn", label: "通义千问（阿里云百炼）", auth: "api_key", env: ["QWEN_TOKEN_PLAN_CN_API_KEY"] },
+	{ id: "minimax-cn", label: "MiniMax（海螺）", auth: "api_key", env: ["MINIMAX_CN_API_KEY"] },
+	{ id: "zai-coding-cn", label: "智谱 GLM（Z.AI）", auth: "api_key", env: ["ZAI_CODING_CN_API_KEY"] },
 ];
 
 const factories = {
@@ -67,7 +74,19 @@ const factories = {
 	openai: "openaiProvider",
 	google: "googleProvider",
 	openrouter: "openrouterProvider",
+	deepseek: "deepseekProvider",
+	"moonshotai-cn": "moonshotaiCnProvider",
+	"kimi-coding": "kimiCodingProvider",
+	"qwen-token-plan-cn": "qwenTokenPlanCnProvider",
+	"minimax-cn": "minimaxCnProvider",
+	"zai-coding-cn": "zaiCodingCnProvider",
 };
+
+// 国内平台多为纯文本旗舰模型，面板过滤（text+image）会把它们藏起来，
+// 这里对国内平台放开为「至少支持文本」即可显示全部模型。
+const CN_PROVIDERS = new Set([
+	"deepseek", "moonshotai-cn", "kimi-coding", "qwen-token-plan-cn", "minimax-cn", "zai-coding-cn",
+]);
 
 async function cliproxyProvider({ baseUrl, env = process.env } = {}) {
 	const base = (baseUrl ?? env.CLIPROXY_BASE_URL ?? "http://127.0.0.1:8317").replace(/\/$/, "");
@@ -307,12 +326,14 @@ function effortsFor(levels) {
 	return { efforts, defaultEffort };
 }
 
-/** One provider's pi catalog, filtered to chat models that take both text and
- * image input and shaped for the panel: key-addressed, effort levels in the
- * frozen wire vocabulary. */
-function catalogModels(models, providerId, getSupportedThinkingLevels) {
+/** One provider's pi catalog, filtered to chat models and shaped for the
+ * panel: key-addressed, effort levels in the frozen wire vocabulary. By
+ * default only models that take both text and image input are listed (the
+ * Agent panel works with screenshots); `allowTextOnly` (used for the Chinese
+ * providers) also shows pure-text flagship models. */
+function catalogModels(models, providerId, getSupportedThinkingLevels, allowTextOnly = false) {
 	return models.getModels(providerId)
-		.filter((model) => Array.isArray(model.input) && model.input.includes("text") && model.input.includes("image"))
+		.filter((model) => Array.isArray(model.input) && model.input.includes("text") && (allowTextOnly || model.input.includes("image")))
 		.map((model) => {
 			const { efforts, defaultEffort } = effortsFor(getSupportedThinkingLevels(model));
 			return { id: model.id, key: `${providerId}/${model.id}`, label: model.name ?? model.id, efforts, defaultEffort, input: ["text", "image"] };
@@ -353,7 +374,7 @@ export async function listAgentModels({ models, codex, auth = defaultAuth, keys 
 		const authResult = await resolvedModels.getAuth(provider.id).catch(() => undefined);
 		const signedIn = authResult !== undefined;
 		const authSource = resolveAuthSource(provider, { auth, saved, env });
-		let list = catalogModels(resolvedModels, provider.id, getSupportedThinkingLevels);
+		let list = catalogModels(resolvedModels, provider.id, getSupportedThinkingLevels, CN_PROVIDERS.has(provider.id));
 		if (provider.id === "openai-codex") {
 			if (signedIn && codex?.listModels) {
 				try {

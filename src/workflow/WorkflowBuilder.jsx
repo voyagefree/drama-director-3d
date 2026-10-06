@@ -30,20 +30,21 @@ import { appendVersion, compareIndex, pinnedInputs, selectVersion, versionLabel,
 import { normalizeVideoForm, videoFormContract } from "./video-contract.js";
 import ShotPromptNode from "./ShotPromptNode.jsx";
 import { shotPromptFromInputs, shotPromptNodeData } from "./shot-prompt-node.js";
+import { ko } from "../locale.js";
 
 const NODE_COLORS = { text: "#6c7cff", image: "#44c2a4", video: "#d9955b", audio: "#6bb6dc", api: "#cf8de8", "video-combiner": "#efb064", upload: "#a88cdb", concat: "#d6b55e", "motion-input": "#79b5ed", scene: "#ef759d", "shot-prompt": "#8fd4b0" };
 
 function makeNode(type, id, position, model = null, nodeSchemas = DEFAULT_NODE_SCHEMAS) {
-	const data = { label: type === "scene" ? "CozyClay Scene" : type === "shot-prompt" ? "Shot Prompt" : type[0].toUpperCase() + type.slice(1) };
+	const data = { label: type === "scene" ? ko("CozyClay Scene", "CozyClay 场景") : type === "shot-prompt" ? ko("Shot Prompt", "镜头提示词") : type[0].toUpperCase() + type.slice(1) };
 	Object.assign(data, { cost: 0, outputHistory: [], outputs: [], resultUrl: null, isLoading: false, errorMsg: null });
-	if (type === "text") data.prompt = "Describe a shot for your scene...";
+	if (type === "text") data.prompt = ko("Describe a shot for your scene...", "描述你想要的镜头…");
 	if (type === "image") data.model = "image-passthrough";
-	if (type === "video") data.prompt = "Describe the motion and camera treatment";
-	if (type === "audio") data.prompt = "Describe the voice or music";
+	if (type === "video") data.prompt = ko("Describe the motion and camera treatment", "描述运镜和机位处理");
+	if (type === "audio") data.prompt = ko("Describe the voice or music", "描述配音或音乐");
 	if (type === "api") { data.model = "api-model"; data.params = "{}"; }
 	if (type === "video-combiner") { data.model = "video-combiner"; data.videos_list = []; data.aspect_ratio = "auto"; }
 	if (type === "concat") data.model = "prompt-concatenator";
-	if (type === "motion-input") Object.assign(data, normalizeMotionInputData({ label: "Motion Input" }));
+	if (type === "motion-input") Object.assign(data, normalizeMotionInputData({ label: ko("Motion Input", "动作输入") }));
 	if (type === "shot-prompt") Object.assign(data, shotPromptNodeData());
 	if (model?.id) {
 		data.model = model.id;
@@ -123,7 +124,7 @@ function SchemaFields({ id, data, category, exclude = [] }) {
 	if (!visibleProperties.length) return null;
 	const values = data.formValues && typeof data.formValues === "object" ? data.formValues : {};
 	const update = (key, value) => data.onChange?.(id, { formValues: { ...values, [key]: value }, [key]: value });
-	return <div className="workflow-schema-fields"><span className="workflow-schema-title">Model inputs</span>{visibleProperties.map(([key, field]) => {
+	return <div className="workflow-schema-fields"><span className="workflow-schema-title">{ko("Model inputs", "模型输入")}</span>{visibleProperties.map(([key, field]) => {
 		const label = field.title || field.description || key.replace(/_/g, " ");
 		const value = values[key] ?? data[key] ?? field.default ?? (field.type === "array" ? [] : "");
 		if (Array.isArray(field.enum)) return <label key={key}>{label}<select value={value} onChange={(event) => update(key, event.target.value)}>{field.enum.map((option) => <option key={String(option)} value={option}>{String(option)}</option>)}</select></label>;
@@ -138,11 +139,11 @@ function SchemaFields({ id, data, category, exclude = [] }) {
 
 function NodeCost({ data }) {
 	if (data.cost === undefined || data.cost === null) return null;
-	return <span className="workflow-node-cost">{Number(data.cost) === 0 ? "Free" : `$${Number(data.cost).toFixed(3)}`}</span>;
+	return <span className="workflow-node-cost">{Number(data.cost) === 0 ? ko("Free", "免费") : `$${Number(data.cost).toFixed(3)}`}</span>;
 }
 
 function TextNode({ id, data }) {
-	return <NodeShell id={id} type="text" title="Text" icon={FiType} target={false}><label>Model</label><ModelSelect id={id} data={data} category="text" fallback={["text-passthrough"]} /><label>Prompt</label><textarea className="workflow-textarea" value={data.prompt || ""} onChange={(event) => data.onChange?.(id, { prompt: event.target.value })} /><SchemaFields id={id} data={data} category="text" /><div className="workflow-node-foot"><span>Prompt input <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
+	return <NodeShell id={id} type="text" title={ko("Text", "文本")} icon={FiType} target={false}><label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="text" fallback={["text-passthrough"]} /><label>{ko("Prompt", "提示词")}</label><textarea className="workflow-textarea" value={data.prompt || ""} onChange={(event) => data.onChange?.(id, { prompt: event.target.value })} /><SchemaFields id={id} data={data} category="text" /><div className="workflow-node-foot"><span>{ko("Prompt input", "提示词输入")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
 }
 
 // Every generation stays on the node as a version, so an author can walk back
@@ -175,16 +176,16 @@ function ImageVersions({ id, data }) {
 				onClick={() => { setShowCompare(false); data.onChange?.(id, { abMode: !data.abMode, abIndex: compareIndex(data) }); }}
 			>A/B</button>
 		</div>
-		{data.abMode && versions.length > 1 && <label className="workflow-version-compare">Compare with<select aria-label="Compare version" value={other} onChange={(event) => { setShowCompare(false); data.onChange?.(id, { abIndex: Number(event.target.value) }); }}>{versions.map((version, position) => <option key={version.at ?? position} value={position} disabled={position === index}>v{position + 1}</option>)}</select></label>}
-		<label className="workflow-schema-check workflow-version-pin"><input type="checkbox" checked={Boolean(data.pinReferences)} onChange={(event) => data.onChange?.(id, { pinReferences: event.target.checked })} />Pin refs</label>
-		<button type="button" className="workflow-version-reuse" onClick={() => data.onUseAsReference?.(id, index)}>Use as reference</button>
+		{data.abMode && versions.length > 1 && <label className="workflow-version-compare">{ko("Compare with", "对比")}<select aria-label="Compare version" value={other} onChange={(event) => { setShowCompare(false); data.onChange?.(id, { abIndex: Number(event.target.value) }); }}>{versions.map((version, position) => <option key={version.at ?? position} value={position} disabled={position === index}>v{position + 1}</option>)}</select></label>}
+		<label className="workflow-schema-check workflow-version-pin"><input type="checkbox" checked={Boolean(data.pinReferences)} onChange={(event) => data.onChange?.(id, { pinReferences: event.target.checked })} />{ko("Pin refs", "固定参考")}</label>
+		<button type="button" className="workflow-version-reuse" onClick={() => data.onUseAsReference?.(id, index)}>{ko("Use as reference", "用作参考")}</button>
 	</div>;
 }
 
 function ImageNode({ id, data }) {
 	const generated = data.model === "image-generation";
 	const hasVersions = versionState(data).versions.length > 0;
-	return <NodeShell id={id} type="image" title="Image" icon={FiImage}><label>Model</label><ModelSelect id={id} data={data} category="image" fallback={["image-passthrough", "image-generation"]} />{generated && hasVersions ? <ImageVersions id={id} data={data} /> : generated && data.resultUrl ? <img className="workflow-image-preview" src={data.resultUrl} alt="Generated workflow output" /> : <div className="workflow-dropzone"><FiImage size={18} /><span>{generated ? "Connect a Scene frame" : "Connect an image or prompt"}</span></div>}{generated && data.isLoading && <div className="workflow-hint">Generating image…</div>}{generated && data.errorMsg && <div className="workflow-error">{data.errorMsg}</div>}<SchemaFields id={id} data={data} category="image" /><div className="workflow-node-foot"><span>Image output <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)} disabled={data.isLoading}><FiPlay size={12} /></button></div></NodeShell>;
+	return <NodeShell id={id} type="image" title={ko("Image", "图像")} icon={FiImage}><label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="image" fallback={["image-passthrough", "image-generation"]} />{generated && hasVersions ? <ImageVersions id={id} data={data} /> : generated && data.resultUrl ? <img className="workflow-image-preview" src={data.resultUrl} alt="Generated workflow output" /> : <div className="workflow-dropzone"><FiImage size={18} /><span>{generated ? ko("Connect a Scene frame", "连接场景画面") : ko("Connect an image or prompt", "连接图像或提示词")}</span></div>}{generated && data.isLoading && <div className="workflow-hint">{ko("Generating image…", "正在生成图像…")}</div>}{generated && data.errorMsg && <div className="workflow-error">{data.errorMsg}</div>}<SchemaFields id={id} data={data} category="image" /><div className="workflow-node-foot"><span>{ko("Image output", "图像输出")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)} disabled={data.isLoading}><FiPlay size={12} /></button></div></NodeShell>;
 }
 
 function h3VerificationMetrics(preservation) {
@@ -206,32 +207,32 @@ function VideoNode({ id, data }) {
 	const form = normalizeVideoForm(provider, { prompt: data.prompt, duration_seconds: data.duration_seconds, aspect: data.aspect, ...data.formValues }, falModel);
 	const update = (key, value) => data.onChange?.(id, { [key]: value, formValues: normalizeVideoForm(provider, { ...form, [key]: value }, falModel) });
 	const changeProvider = (next) => data.onChange?.(id, { provider: next, formValues: normalizeVideoForm(next, { ...form, provider: next }, falModel) });
-	return <NodeShell id={id} type="video" title="Video" icon={FiVideo}>
-		<label>Model</label><ModelSelect id={id} data={data} category="video" fallback={["video-passthrough", "video-generation"]} />
+	return <NodeShell id={id} type="video" title={ko("Video", "视频")} icon={FiVideo}>
+		<label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="video" fallback={["video-passthrough", "video-generation"]} />
 		{generated && <>
-			<label>Provider</label><select value={provider} onChange={(event) => changeProvider(event.target.value)}>{(providers.length ? providers : [{ id: "comfy", name: "ComfyUI", configured: false }, { id: "fal", name: "Fal.ai", configured: false }]).map((entry) => <option key={entry.id} value={entry.id} disabled={!entry.configured}>{entry.name} {!entry.configured ? `(set ${entry.id === "comfy" ? "COZYCLAY_COMFY_URL" : "FAL_KEY"})` : ""}</option>)}</select>
+			<label>{ko("Provider", "服务商")}</label><select value={provider} onChange={(event) => changeProvider(event.target.value)}>{(providers.length ? providers : [{ id: "comfy", name: "ComfyUI", configured: false }, { id: "fal", name: "Fal.ai", configured: false }]).map((entry) => <option key={entry.id} value={entry.id} disabled={!entry.configured}>{entry.name} {!entry.configured ? `(set ${entry.id === "comfy" ? "COZYCLAY_COMFY_URL" : "FAL_KEY"})` : ""}</option>)}</select>
 			{provider === "fal" && <div className="workflow-hint">{contract.name} · {providers.find((entry) => entry.id === "fal")?.resolution || contract.defaultResolution}{contract.cameraLocked ? " · locked camera · character motion only" : ""}</div>}
-			<label>Motion prompt</label><textarea className="workflow-textarea" value={form.prompt ?? data.prompt ?? ""} onChange={(event) => update("prompt", event.target.value)} placeholder="Motion prompt" />
-			<label>Duration (seconds)</label><input type="number" min={contract.minDuration} max={contract.maxDuration} value={form.duration_seconds} onChange={(event) => update("duration_seconds", Number(event.target.value))} />
-			<label>Aspect</label>{contract.aspectFromImage ? <><div className="workflow-hint" data-testid="video-source-aspect">Matches input image · frame the full body in the source image</div><div className="workflow-warning" role="status" data-testid="mocap-framing-warning">Before generating: confirm the captured frame shows the head, hands, feet, and any needed objects. Cropped parts can break mocap alignment.</div></> : <select value={form.aspect} onChange={(event) => update("aspect", event.target.value)}>{contract.aspects.map((aspect) => <option key={aspect}>{aspect}</option>)}</select>}
-			<label className="workflow-schema-check"><input type="checkbox" checked={Boolean(form.extract_mocap)} onChange={(event) => update("extract_mocap", event.target.checked)} />Extract GVHMR motion into connected Motion Input</label>
+			<label>{ko("Motion prompt", "动作提示词")}</label><textarea className="workflow-textarea" value={form.prompt ?? data.prompt ?? ""} onChange={(event) => update("prompt", event.target.value)} placeholder={ko("Motion prompt", "动作提示词")} />
+			<label>{ko("Duration (seconds)", "时长（秒）")}</label><input type="number" min={contract.minDuration} max={contract.maxDuration} value={form.duration_seconds} onChange={(event) => update("duration_seconds", Number(event.target.value))} />
+			<label>{ko("Aspect", "宽高比")}</label>{contract.aspectFromImage ? <><div className="workflow-hint" data-testid="video-source-aspect">{ko("Matches input image · frame the full body in the source image", "与输入图像一致 · 请将全身完整取景在源图像中")}</div><div className="workflow-warning" role="status" data-testid="mocap-framing-warning">{ko("Before generating: confirm the captured frame shows the head, hands, feet, and any needed objects. Cropped parts can break mocap alignment.", "生成前请确认捕获画面包含头部、手、脚和所需物体，裁切部分会导致动作捕捉对齐失败。")}</div></> : <select value={form.aspect} onChange={(event) => update("aspect", event.target.value)}>{contract.aspects.map((aspect) => <option key={aspect}>{aspect}</option>)}</select>}
+			<label className="workflow-schema-check"><input type="checkbox" checked={Boolean(form.extract_mocap)} onChange={(event) => update("extract_mocap", event.target.checked)} />{ko("Extract GVHMR motion into connected Motion Input", "提取 GVHMR 动作到已连接的动作输入节点")}</label>
 		</>}
 		{data.videoUrl && <video controls className="workflow-video-preview" src={data.videoUrl} />}
 		{generated && data.motionExtraction?.motionUrl && <div className="workflow-hint" data-testid="mocap-extraction-receipt">✓ GVHMR motion extracted{Number.isFinite(data.motionExtraction.frames) ? ` · ${data.motionExtraction.frames} frames` : ""}</div>}
 		{generated && data.preservation?.pass && <div className="workflow-hint workflow-preservation-ok" data-testid="h3-preservation-receipt">✓ H3 scene/camera lock verified{h3VerificationMetrics(data.preservation)}</div>}
 		{generated && data.preservation && !data.preservation.pass && <div className="workflow-error workflow-preservation-failed" data-testid="h3-preservation-failed">✕ H3 output rejected: background/camera drift{h3VerificationMetrics(data.preservation)}</div>}
-		{generated && data.isLoading && <div className="workflow-hint">Generating video…</div>}{generated && data.errorMsg && <div className="workflow-error">{data.errorMsg}</div>}
+		{generated && data.isLoading && <div className="workflow-hint">{ko("Generating video…", "正在生成视频…")}</div>}{generated && data.errorMsg && <div className="workflow-error">{data.errorMsg}</div>}
 		{!generated && <SchemaFields id={id} data={data} category="video" />}
-		<div className="workflow-node-foot"><span>Video output <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)} disabled={data.isLoading}><FiPlay size={12} /></button></div>
+		<div className="workflow-node-foot"><span>{ko("Video output", "视频输出")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)} disabled={data.isLoading}><FiPlay size={12} /></button></div>
 	</NodeShell>;
 }
 
 function AudioNode({ id, data }) {
-	return <NodeShell id={id} type="audio" title="Audio" icon={FiMusic}><label>Model</label><ModelSelect id={id} data={data} category="audio" fallback={["audio-passthrough"]} /><label>Prompt</label><input value={data.prompt || ""} onChange={(event) => data.onChange?.(id, { prompt: event.target.value })} placeholder="Describe the voice or music" /><label>Audio URL</label><input value={data.audio_url || ""} onChange={(event) => data.onChange?.(id, { audio_url: event.target.value })} placeholder="https://…" /><SchemaFields id={id} data={data} category="audio" /><div className="workflow-node-foot"><span>Audio output <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
+	return <NodeShell id={id} type="audio" title={ko("Audio", "音频")} icon={FiMusic}><label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="audio" fallback={["audio-passthrough"]} /><label>{ko("Prompt", "提示词")}</label><input value={data.prompt || ""} onChange={(event) => data.onChange?.(id, { prompt: event.target.value })} placeholder={ko("Describe the voice or music", "描述配音或音乐")} /><label>{ko("Audio URL", "音频地址")}</label><input value={data.audio_url || ""} onChange={(event) => data.onChange?.(id, { audio_url: event.target.value })} placeholder="https://…" /><SchemaFields id={id} data={data} category="audio" /><div className="workflow-node-foot"><span>{ko("Audio output", "音频输出")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
 }
 
 function ApiNode({ id, data }) {
-	return <NodeShell id={id} type="api" title="API Node" icon={FiCode}><label>Model</label><ModelSelect id={id} data={data} category="api" fallback={[data.model || "api-model"]} /><label>Parameters (JSON)</label><textarea className="workflow-textarea" value={data.params || "{}"} onChange={(event) => data.onChange?.(id, { params: event.target.value })} /><SchemaFields id={id} data={data} category="api" exclude={["params"]} /><div className="workflow-node-foot"><span>API model <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
+	return <NodeShell id={id} type="api" title={ko("API Node", "API 节点")} icon={FiCode}><label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="api" fallback={[data.model || "api-model"]} /><label>{ko("Parameters (JSON)", "参数（JSON）")}</label><textarea className="workflow-textarea" value={data.params || "{}"} onChange={(event) => data.onChange?.(id, { params: event.target.value })} /><SchemaFields id={id} data={data} category="api" exclude={["params"]} /><div className="workflow-node-foot"><span>{ko("API model", "API 模型")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
 }
 
 function MotionInputNode({ id, data }) {
@@ -239,30 +240,30 @@ function MotionInputNode({ id, data }) {
 	const normalized = normalizeMotionInputData(data);
 	const update = (patch) => data.onChange?.(id, patch);
 	const handleId = characterHandleId(normalized.characterId);
-	return <NodeShell id={id} type="motion-input" title="Motion Input" icon={FiActivity}>
-		<label>Character handle</label>
+	return <NodeShell id={id} type="motion-input" title={ko("Motion Input", "动作输入")} icon={FiActivity}>
+		<label>{ko("Character handle", "角色句柄")}</label>
 		<select aria-label="Motion character" value={normalized.characterId} onChange={(event) => update({ characterId: event.target.value })}>
-			<option value="">Choose character…</option>
+			<option value="">{ko("Choose character…", "选择角色…")}</option>
 			{options.map((character) => <option key={character.id} value={character.id}>{character.name || character.subject || character.id}</option>)}
 		</select>
 		<input aria-label="Character id" value={normalized.characterId} onChange={(event) => update({ characterId: event.target.value.trim() })} placeholder="character id (e.g. char-a)" />
-		<label>Same-origin motion URL</label>
+		<label>{ko("Same-origin motion URL", "同源动作地址")}</label>
 		<input aria-label="Motion URL" value={normalized.objectUrl ? "" : normalized.url} onChange={(event) => update({ url: event.target.value, objectUrl: null, status: event.target.value ? "ready" : "idle" })} placeholder="/ardy/motions/take.npz" />
-		<label className="workflow-upload workflow-motion-upload"><FiUpload size={18} /><span>{normalized.fileName || "Choose local .npz motion"}</span><input type="file" accept=".npz,application/octet-stream,.json" onChange={(event) => { const file = event.target.files?.[0]; if (!file) return; const objectUrl = URL.createObjectURL(file); update({ objectUrl, url: objectUrl, fileName: file.name, mimeType: file.type || "application/octet-stream", status: "ready" }); }} /></label>
-		<div className="workflow-node-foot"><span>{normalized.status === "ready" ? `${handleId} ready` : "Connect to a character handle"}</span><span>{motionInputOutput(normalized).frames ? `${motionInputOutput(normalized).frames}f` : ""}</span></div>
+		<label className="workflow-upload workflow-motion-upload"><FiUpload size={18} /><span>{normalized.fileName || ko("Choose local .npz motion", "选择本地 .npz 动作")}</span><input type="file" accept=".npz,application/octet-stream,.json" onChange={(event) => { const file = event.target.files?.[0]; if (!file) return; const objectUrl = URL.createObjectURL(file); update({ objectUrl, url: objectUrl, fileName: file.name, mimeType: file.type || "application/octet-stream", status: "ready" }); }} /></label>
+		<div className="workflow-node-foot"><span>{normalized.status === "ready" ? `${handleId} ready` : ko("Connect to a character handle", "连接到角色句柄")}</span><span>{motionInputOutput(normalized).frames ? `${motionInputOutput(normalized).frames}f` : ""}</span></div>
 	</NodeShell>;
 }
 
 function VideoCombinerNode({ id, data }) {
-	return <NodeShell id={id} type="video-combiner" title="Video Combiner" icon={FiFilm}><label>Model</label><ModelSelect id={id} data={data} category="utility" allowedModels={["video-combiner"]} fallback={["video-combiner"]} /><label>Video URLs (one per line)</label><textarea className="workflow-textarea" value={(data.videos_list || []).join("\n")} onChange={(event) => data.onChange?.(id, { videos_list: event.target.value.split(/\n+/).map((value) => value.trim()).filter(Boolean) })} placeholder="https://…" /><label>Aspect ratio</label><select value={data.aspect_ratio || "auto"} onChange={(event) => data.onChange?.(id, { aspect_ratio: event.target.value })}><option>auto</option><option>16:9</option><option>9:16</option><option>1:1</option></select><SchemaFields id={id} data={data} category="utility" exclude={["videos_list", "aspect_ratio"]} /><div className="workflow-node-foot"><span>Combined video <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
+	return <NodeShell id={id} type="video-combiner" title={ko("Video Combiner", "视频合成")} icon={FiFilm}><label>{ko("Model", "模型")}</label><ModelSelect id={id} data={data} category="utility" allowedModels={["video-combiner"]} fallback={["video-combiner"]} /><label>{ko("Video URLs (one per line)", "视频地址（每行一个）")}</label><textarea className="workflow-textarea" value={(data.videos_list || []).join("\n")} onChange={(event) => data.onChange?.(id, { videos_list: event.target.value.split(/\n+/).map((value) => value.trim()).filter(Boolean) })} placeholder="https://…" /><label>{ko("Aspect ratio", "宽高比")}</label><select value={data.aspect_ratio || "auto"} onChange={(event) => data.onChange?.(id, { aspect_ratio: event.target.value })}><option>auto</option><option>16:9</option><option>9:16</option><option>1:1</option></select><SchemaFields id={id} data={data} category="utility" exclude={["videos_list", "aspect_ratio"]} /><div className="workflow-node-foot"><span>{ko("Combined video", "合成视频")} <NodeCost data={data} /></span><button className="workflow-mini-button" type="button" onClick={() => data.onRun?.(id)}><FiPlay size={12} /></button></div></NodeShell>;
 }
 
 function UploadNode({ id, data }) {
-	return <NodeShell id={id} type="upload" title="Upload" icon={FiUpload}><label className="workflow-upload"><FiUpload size={18} /><span>{data.uploading ? "Reading…" : "Choose image, video, or audio"}</span><input type="file" accept="image/*,video/*,audio/*" disabled={data.uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) data.onUpload?.(id, file); }} /></label>{typeof data.image_url === "string" && data.image_url.startsWith("data:image/") && <img className="workflow-image-preview" src={data.image_url} alt={data.fileName || "Uploaded image"} />}<p className="workflow-hint">{data.fileName || "Files stay local to this browser session. Paste or drop an image onto the canvas to add one here."}</p></NodeShell>;
+	return <NodeShell id={id} type="upload" title={ko("Upload", "上传")} icon={FiUpload}><label className="workflow-upload"><FiUpload size={18} /><span>{data.uploading ? ko("Reading…", "读取中…") : ko("Choose image, video, or audio", "选择图片、视频或音频")}</span><input type="file" accept="image/*,video/*,audio/*" disabled={data.uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) data.onUpload?.(id, file); }} /></label>{typeof data.image_url === "string" && data.image_url.startsWith("data:image/") && <img className="workflow-image-preview" src={data.image_url} alt={data.fileName || "Uploaded image"} />}<p className="workflow-hint">{data.fileName || ko("Files stay local to this browser session. Paste or drop an image onto the canvas to add one here.", "文件仅保存在本次浏览器会话中。粘贴或拖放图片到画布即可添加。")}</p></NodeShell>;
 }
 
 function ConcatNode({ id, data }) {
-	return <NodeShell id={id} type="concat" title="Prompt Concat" icon={FiLink}><label>Template</label><input value={data.template || "{prompt} {style}"} onChange={(event) => data.onChange?.(id, { template: event.target.value })} /><div className="workflow-node-foot"><span>Text merge</span></div><Handle type="target" position={Position.Left} id="input-a" className="workflow-handle target" /></NodeShell>;
+	return <NodeShell id={id} type="concat" title={ko("Prompt Concat", "提示词拼接")} icon={FiLink}><label>{ko("Template", "模板")}</label><input value={data.template || "{prompt} {style}"} onChange={(event) => data.onChange?.(id, { template: event.target.value })} /><div className="workflow-node-foot"><span>{ko("Text merge", "文本合并")}</span></div><Handle type="target" position={Position.Left} id="input-a" className="workflow-handle target" /></NodeShell>;
 }
 
 // ShotPromptNode lives in its own file and takes NodeShell by injection, so it
@@ -318,7 +319,7 @@ export default function WorkflowBuilder() {
 			const node = makeNode(type, id, position, model, nodeSchemas);
 			return [...current, data ? { ...node, data: { ...node.data, ...data } } : node];
 		});
-		toast.success(`${type === "scene" ? "CozyClay Scene" : type} node added`);
+		toast.success(ko("{name} node added", "已添加 {name} 节点").replace("{name}", type === "scene" ? ko("CozyClay Scene", "CozyClay 场景") : type));
 		return id;
 	}, [nodeSchemas, setNodes]);
 	// An image pasted or dropped onto the canvas becomes an Upload node holding
@@ -340,7 +341,7 @@ export default function WorkflowBuilder() {
 			if (!canvasTakesPaste(event.target, event.clipboardData)) return;
 			const file = imageFileFromTransfer(event.clipboardData);
 			event.preventDefault();
-			placeImage(file).catch((error) => toast.error(`Could not paste the image (${error.message})`));
+			placeImage(file).catch((error) => toast.error(ko("Could not paste the image ({error})", "无法粘贴图片（{error}）").replace("{error}", error.message)));
 		};
 		window.addEventListener("paste", onPaste);
 		return () => window.removeEventListener("paste", onPaste);
@@ -350,7 +351,7 @@ export default function WorkflowBuilder() {
 		const file = imageFileFromTransfer(event.dataTransfer);
 		if (!file) return;
 		event.preventDefault();
-		placeImage(file, { x: event.clientX, y: event.clientY }).catch((error) => toast.error(`Could not add the image (${error.message})`));
+		placeImage(file, { x: event.clientX, y: event.clientY }).catch((error) => toast.error(ko("Could not add the image ({error})", "无法添加图片（{error}）").replace("{error}", error.message)));
 	}, [placeImage]);
 	const changeModel = useCallback((id, type, model) => {
 		const category = schemaCategoryForType(type);
@@ -365,7 +366,7 @@ export default function WorkflowBuilder() {
 		const { versions, index: current } = versionState(node?.data);
 		const position = Number.isInteger(index) ? Math.min(Math.max(index, 0), versions.length - 1) : current;
 		const version = versions[position];
-		if (!version?.dataUrl) { toast.error("Generate an image before using it as a reference"); return; }
+		if (!version?.dataUrl) { toast.error(ko("Generate an image before using it as a reference", "请先生成图像再作为参考使用")); return; }
 		const origin = node.position || { x: 0, y: 0 };
 		const name = `version-${position + 1}.png`;
 		const file = { name, type: version.dataUrl.slice(5, version.dataUrl.indexOf(";")) || "image/png" };
@@ -378,7 +379,7 @@ export default function WorkflowBuilder() {
 			data: { prompt: version.prompt || "" },
 		});
 		setEdges((currentEdges) => addEdge({ id: `e-${uploadId}-${imageId}`, source: uploadId, target: imageId, sourceHandle: "output", targetHandle: "input", animated: true, style: { stroke: "#8994ff", strokeWidth: 2 } }, currentEdges));
-		toast.success(`v${position + 1} reused as a reference`);
+		toast.success(ko("v{version} reused as a reference", "v{version} 已作为参考复用").replace("{version}", String(position + 1)));
 	}, [addNode, nodes, setEdges]);
 	useEffect(() => {
 		// A host app can inject the same schema envelope fetched by Vibe's
@@ -440,19 +441,19 @@ export default function WorkflowBuilder() {
 			if (kind === "image_url") {
 				const imported = await importImageIntoActiveScene(file);
 				updateNode(id, { uploading: false, fileName: file.name, mimeType: file.type, fileUrl: localUrl, localPreview: true, [kind]: localUrl, assetId: imported.asset.id, outputs: [{ value: localUrl }] });
-				toast.success(imported.changed ? "Image added to the active Scene" : "Image already exists in the active Scene");
+				toast.success(imported.changed ? ko("Image added to the active Scene", "图片已添加到活动场景") : ko("Image already exists in the active Scene", "图片已存在于活动场景"));
 				return;
 			}
 		} catch (error) {
-			toast(`Scene import unavailable; local preview kept (${error.message})`);
+			toast(ko("Scene import unavailable; local preview kept ({error})", "场景导入不可用；已保留本地预览（{error}）").replace("{error}", error.message));
 		}
 		updateNode(id, { uploading: false, fileName: file.name, mimeType: file.type, fileUrl: localUrl, localPreview: true, [kind]: localUrl, outputs: [{ value: localUrl }] });
-		toast.success("File kept in this browser session");
+		toast.success(ko("File kept in this browser session", "文件已保存在本次浏览器会话中"));
 	}, [updateNode]);
 	const saveWorkflow = useCallback(() => {
 		storeWorkflowGraph(graph);
 		setLastSaved(true);
-		toast.success("Workflow saved locally");
+		toast.success(ko("Workflow saved locally", "工作流已保存在本地"));
 	}, [graph]);
 
 	const runWorkflowRef = useRef(null);
@@ -465,7 +466,7 @@ export default function WorkflowBuilder() {
 			if (!input.nodes.length) {
 				setRunState("complete");
 				execution.succeed();
-				toast.success("Local CozyClay scene is ready");
+				toast.success(ko("Local CozyClay scene is ready", "本地 CozyClay 场景已就绪"));
 				return { graph: input, outputs: [] };
 			}
 			setRunState("running");
@@ -494,7 +495,7 @@ export default function WorkflowBuilder() {
 						// the identity/environment references (#167) ride with it so an
 						// Image node downstream can attach them.
 						const references = Array.isArray(frame.references) ? frame.references : [];
-						patchNode(id, { status: "complete", statusMessage: "Captured framing PNG", preview: "render", lastOutput: { renderUrl: frame.dataUrl, sceneUrl: "/app/", jobId: null, meta: frame.meta ?? null, references }, outputs: [{ value: frame.dataUrl }], resultUrl: frame.dataUrl });
+						patchNode(id, { status: "complete", statusMessage: ko("Captured framing PNG", "已捕获取景 PNG"), preview: "render", lastOutput: { renderUrl: frame.dataUrl, sceneUrl: "/app/", jobId: null, meta: frame.meta ?? null, references }, outputs: [{ value: frame.dataUrl }], resultUrl: frame.dataUrl });
 						execution.apply();
 						sceneMeta.set(id, frame.meta ?? current.data?.lastOutput?.meta ?? null);
 						sceneReferences.set(id, references);
@@ -522,7 +523,7 @@ export default function WorkflowBuilder() {
 					const imageInputs = incoming.filter((entry) => typeof entry.value === "string" && entry.value.startsWith("data:image/"));
 					const frame = imageInputs[0]?.value;
 					const lastFrameDataUrl = imageInputs[1]?.value;
-					if (!frame) { runFailure ||= { code: "unknown" }; patchNode(id, { status: "error", errorMsg: "Connect a Scene frame or an image before generating." }); continue; }
+					if (!frame) { runFailure ||= { code: "unknown" }; patchNode(id, { status: "error", errorMsg: ko("Connect a Scene frame or an image before generating.", "生成前请先连接场景画面或图片。") }); continue; }
 					const form = current.data.formValues || {};
 					// A Shot Prompt node upstream is an explicit prompt: it wins over an
 					// empty motion prompt on the node itself.
@@ -568,7 +569,7 @@ export default function WorkflowBuilder() {
 					// Pinned references keep the frame and reference of the shown version,
 					// so a prompt tweak is the only thing that changes between takes.
 					const { source, reference } = pinnedInputs(current.data, { source: upstreamSource, reference: upstreamReference });
-					if (!source) { runFailure ||= { code: "unknown" }; patchNode(id, { status: "error", errorMsg: "Connect a Scene frame before generating." }); continue; }
+					if (!source) { runFailure ||= { code: "unknown" }; patchNode(id, { status: "error", errorMsg: ko("Connect a Scene frame before generating.", "生成前请先连接场景画面。") }); continue; }
 					// Same precedence as the Video node: the node's own prompt if it has
 					// one, otherwise the structured prompt from an upstream Shot Prompt.
 					const upstreamPrompt = incoming.map((entry) => entry.node?.type === "shot-prompt" ? entry.value : null).find((value) => typeof value === "string" && value.trim());
@@ -596,7 +597,7 @@ export default function WorkflowBuilder() {
 				}
 			}
 			setRunState("complete");
-			toast.success(nodeId ? "Node evaluated locally" : "Workflow evaluated locally");
+			toast.success(nodeId ? ko("Node evaluated locally", "节点已在本地求值") : ko("Workflow evaluated locally", "工作流已在本地求值"));
 			const outputs = result.nodes.map((node) => {
 				const patch = patches.get(node.id);
 				const hasPatchedOutputs = patch && Object.prototype.hasOwnProperty.call(patch, "outputs");
@@ -637,8 +638,8 @@ export default function WorkflowBuilder() {
 	}, [nodeSchemas, setEdges, setNodes]);
 	const runScene = useCallback(async ({ id, data }) => {
 		const execution = startWorkflowExecution({ node_count_bucket: "1-3" }, { capture: track, durationBucket: bucketMs });
-		updateScene({ id, patch: { status: "running", statusMessage: "Capturing framing PNG" } });
-		try { const frame = await captureSceneFrame(id); updateScene({ id, patch: { status: "complete", statusMessage: "Captured framing PNG", preview: "render", lastOutput: { renderUrl: frame.dataUrl, sceneUrl: "/app/", jobId: null, meta: frame.meta ?? null, references: Array.isArray(frame.references) ? frame.references : [] }, outputs: [{ value: frame.dataUrl }], resultUrl: frame.dataUrl } }); execution.apply(); execution.succeed(); toast.success("Scene frame captured"); }
+		updateScene({ id, patch: { status: "running", statusMessage: ko("Capturing framing PNG", "已捕获取景 PNG") } });
+		try { const frame = await captureSceneFrame(id); updateScene({ id, patch: { status: "complete", statusMessage: ko("Captured framing PNG", "已捕获取景 PNG"), preview: "render", lastOutput: { renderUrl: frame.dataUrl, sceneUrl: "/app/", jobId: null, meta: frame.meta ?? null, references: Array.isArray(frame.references) ? frame.references : [] }, outputs: [{ value: frame.dataUrl }], resultUrl: frame.dataUrl } }); execution.apply(); execution.succeed(); toast.success(ko("Scene frame captured", "场景画面已捕获")); }
 		catch (error) { execution.fail(error, "capture_failed"); updateScene({ id, patch: { status: "error", errorMsg: error.message, statusMessage: error.message } }); }
 	}, [updateScene]);
 	// The previs is a step, not a destination: this is the one click from the
@@ -649,7 +650,7 @@ export default function WorkflowBuilder() {
 		const origin = scene?.position || { x: 0, y: 0 };
 		const videoId = addNode("video", { id: "video-generation", name: "Video generation" }, { position: { x: origin.x + 380, y: origin.y } });
 		setEdges((current) => addEdge({ id: `e-${id}-${videoId}`, source: id, target: videoId, sourceHandle: "render", targetHandle: "input", animated: true, style: { stroke: "#8994ff", strokeWidth: 2 } }, current));
-		toast.success("Video node connected to the Scene render");
+		toast.success(ko("Video node connected to the Scene render", "视频节点已连接到场景渲染"));
 	}, [addNode, nodes, setEdges]);
 
 	const decoratedNodes = useMemo(() => nodes.map((node) => ({
@@ -668,27 +669,27 @@ export default function WorkflowBuilder() {
 		},
 	})), [changeModel, nodeSchemas, nodes, runScene, runWorkflow, sceneCharacters, sceneContext, sendSceneToVideo, updateNode, updateScene, uploadFile, useVersionAsReference]);
 
-	const exportGraph = useCallback(() => { const blob = new Blob([JSON.stringify(graph, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "cozyclay-workflow.json"; anchor.click(); URL.revokeObjectURL(url); toast.success("Workflow exported"); }, [graph]);
+	const exportGraph = useCallback(() => { const blob = new Blob([JSON.stringify(graph, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "cozyclay-workflow.json"; anchor.click(); URL.revokeObjectURL(url); toast.success(ko("Workflow exported", "工作流已导出")); }, [graph]);
 	const onConnect = useCallback((params) => {
 		const target = nodes.find((node) => node.id === params.target);
 		const source = nodes.find((node) => node.id === params.source);
 		if (target?.type === "motion-input" && source?.type !== "video") {
-			toast.error("Motion Input accepts generated Video nodes only");
+			toast.error(ko("Motion Input accepts generated Video nodes only", "动作输入只接受已生成的视频节点"));
 			return;
 		}
 		if (target?.type === "scene" && !sceneConnectionAllowed(source, params.targetHandle, source?.data)) {
-			toast.error((params.targetHandle || "").startsWith("character:") || params.targetHandle === "motion" ? "Character inputs accept Motion Input only" : "Scene asset input accepts images only");
+			toast.error((params.targetHandle || "").startsWith("character:") || params.targetHandle === "motion" ? ko("Character inputs accept Motion Input only", "角色输入只接受动作输入") : ko("Scene asset input accepts images only", "场景资产输入只接受图片"));
 			return;
 		}
 		setEdges((current) => addEdge({ ...params, animated: true, style: { stroke: "#8994ff", strokeWidth: 2 } }, current));
 	}, [nodes, setEdges]);
-	const runLabel = { local: "Local workflow", running: "Running", complete: "Complete" }[runState] || "Local workflow";
+	const runLabel = { local: ko("Local workflow", "本地工作流"), running: ko("Running", "运行中"), complete: ko("Complete", "已完成") }[runState] || ko("Local workflow", "本地工作流");
 	const modelOptions = useMemo(() => ["text", "image", "video", "audio", "api"].flatMap((type) => schemaModelEntries(nodeSchemas, type).map((model) => ({ ...model, type }))).filter((model) => !modelSearch.trim() || `${model.name} ${model.id}`.toLowerCase().includes(modelSearch.trim().toLowerCase())).slice(0, 8), [modelSearch, nodeSchemas]);
 	const modelIcons = { text: FiType, image: FiImage, video: FiVideo, audio: FiMusic, api: FiCode };
 
 	return <div className="workflow-app">
 		<Toaster position="bottom-right" toastOptions={{ style: { background: "#252833", color: "#f4f5fb" } }} />
-		<header className="workflow-topbar"><div className="workflow-brand"><span className="workflow-brand-mark">C</span><span>CozyClay</span><span className="workflow-divider">/</span><strong>Workflow</strong></div><div className="workflow-top-actions"><span className={`workflow-status ${runState}`}><i /> {runLabel}</span><button type="button" onClick={saveWorkflow}>{lastSaved ? "Saved" : "Save"}</button><button type="button" onClick={() => runWorkflow()}><FiPlay size={12} /> Run</button><button type="button" onClick={exportGraph}>Export</button><button type="button" className="workflow-agent-toggle" title="Toggle agent panel (Cmd/Ctrl+B)" onClick={() => window.dispatchEvent(new CustomEvent("cozyclay:agent-panel-toggle"))}>Agent</button></div></header>
-		<div className="workflow-main"><aside className="workflow-sidebar"><div className="workflow-sidebar-title">Nodes</div><p className="workflow-sidebar-copy">Build a visual chain from prompts to a staged CozyClay scene.</p><input className="workflow-node-search" aria-label="Search nodes or models" placeholder="Search nodes or models" value={modelSearch} onChange={(event) => setModelSearch(event.target.value)} />{modelSearch && <div className="workflow-model-results">{modelOptions.length ? modelOptions.map((model) => { const Icon = modelIcons[model.type] || FiBox; return <button type="button" key={`${model.type}-${model.id}`} className="workflow-add-node" onClick={() => { addNode(model.type, model); setModelSearch(""); }}><span style={{ color: NODE_COLORS[model.type] }}><Icon size={15} /></span><span>{model.name}</span><FiPlus size={13} /></button>; }) : <span className="workflow-hint">No models found</span>}</div>}<div className="workflow-node-menu">{[["text", "Text", FiType], ["image", "Image", FiImage], ["video", "Video", FiVideo], ["audio", "Audio", FiMusic], ["api", "API Node", FiCode], ["video-combiner", "Video Combiner", FiFilm], ["motion-input", "Motion Input", FiActivity], ["shot-prompt", "Shot Prompt", FiFileText], ["upload", "Upload", FiUpload], ["concat", "Prompt Concat", FiLink], ["scene", "CozyClay Scene", FiBox]].map(([type, label, Icon]) => <button type="button" key={type} className="workflow-add-node" onClick={() => addNode(type)}><span style={{ color: NODE_COLORS[type] }}><Icon size={16} /></span><span>{label}</span><FiPlus size={13} /></button>)}</div><div className="workflow-sidebar-bottom"><button type="button" onClick={() => setLocked((value) => !value)}>{locked ? "Unlock canvas" : "Lock canvas"}</button><a href="/app/">Open Studio ↗</a></div></aside><section className="workflow-canvas" ref={canvasRef} onDragOver={onCanvasDragOver} onDrop={onCanvasDrop}><ReactFlow onInit={(instance) => { flowRef.current = instance; }} nodes={decoratedNodes} edges={edges} nodeTypes={FLOW_NODE_TYPES} onNodesChange={locked ? undefined : onNodesChange} onEdgesChange={locked ? undefined : onEdgesChange} onConnect={locked ? undefined : onConnect} fitView snapToGrid snapGrid={[16, 16]} defaultEdgeOptions={{ type: "smoothstep" }}><Background color="#282c38" gap={24} size={1} /><Controls showInteractive={false} /><Panel position="top-right" className="workflow-canvas-panel"><button type="button" onClick={() => addNode("scene")}><FiPlus size={13} /> Add node</button></Panel></ReactFlow></section><AgentPanel sceneName={sceneContext.name} /></div>
+		<header className="workflow-topbar"><div className="workflow-brand"><span className="workflow-brand-mark">C</span><span>CozyClay</span><span className="workflow-divider">/</span><strong>{ko("Workflow", "工作流")}</strong></div><div className="workflow-top-actions"><span className={`workflow-status ${runState}`}><i /> {runLabel}</span><button type="button" onClick={saveWorkflow}>{lastSaved ? ko("Saved", "已保存") : ko("Save", "保存")}</button><button type="button" onClick={() => runWorkflow()}><FiPlay size={12} /> {ko("Run", "运行")}</button><button type="button" onClick={exportGraph}>{ko("Export", "导出")}</button><button type="button" className="workflow-agent-toggle" title={ko("Toggle agent panel (Cmd/Ctrl+B)", "切换智能体面板（Cmd/Ctrl+B）")} onClick={() => window.dispatchEvent(new CustomEvent("cozyclay:agent-panel-toggle"))}>{ko("Agent", "智能体")}</button></div></header>
+		<div className="workflow-main"><aside className="workflow-sidebar"><div className="workflow-sidebar-title">{ko("Nodes", "节点")}</div><p className="workflow-sidebar-copy">{ko("Build a visual chain from prompts to a staged CozyClay scene.", "搭建从提示词到布景 CozyClay 场景的可视化流程。")}</p><input className="workflow-node-search" aria-label={ko("Search nodes or models", "搜索节点或模型")} placeholder={ko("Search nodes or models", "搜索节点或模型")} value={modelSearch} onChange={(event) => setModelSearch(event.target.value)} />{modelSearch && <div className="workflow-model-results">{modelOptions.length ? modelOptions.map((model) => { const Icon = modelIcons[model.type] || FiBox; return <button type="button" key={`${model.type}-${model.id}`} className="workflow-add-node" onClick={() => { addNode(model.type, model); setModelSearch(""); }}><span style={{ color: NODE_COLORS[model.type] }}><Icon size={15} /></span><span>{model.name}</span><FiPlus size={13} /></button>; }) : <span className="workflow-hint">{ko("No models found", "未找到模型")}</span>}</div>}<div className="workflow-node-menu">{[["text", "Text", FiType], ["image", "Image", FiImage], ["video", "Video", FiVideo], ["audio", "Audio", FiMusic], ["api", "API Node", FiCode], ["video-combiner", "Video Combiner", FiFilm], ["motion-input", "Motion Input", FiActivity], ["shot-prompt", "Shot Prompt", FiFileText], ["upload", "Upload", FiUpload], ["concat", "Prompt Concat", FiLink], ["scene", "CozyClay Scene", FiBox]].map(([type, label, Icon]) => <button type="button" key={type} className="workflow-add-node" onClick={() => addNode(type)}><span style={{ color: NODE_COLORS[type] }}><Icon size={16} /></span><span>{ko(label)}</span><FiPlus size={13} /></button>)}</div><div className="workflow-sidebar-bottom"><button type="button" onClick={() => setLocked((value) => !value)}>{locked ? ko("Unlock canvas", "解锁画布") : ko("Lock canvas", "锁定画布")}</button><a href="/app/">{ko("Open Studio ↗", "打开 Studio ↗")}</a></div></aside><section className="workflow-canvas" ref={canvasRef} onDragOver={onCanvasDragOver} onDrop={onCanvasDrop}><ReactFlow onInit={(instance) => { flowRef.current = instance; }} nodes={decoratedNodes} edges={edges} nodeTypes={FLOW_NODE_TYPES} onNodesChange={locked ? undefined : onNodesChange} onEdgesChange={locked ? undefined : onEdgesChange} onConnect={locked ? undefined : onConnect} fitView snapToGrid snapGrid={[16, 16]} defaultEdgeOptions={{ type: "smoothstep" }}><Background color="#282c38" gap={24} size={1} /><Controls showInteractive={false} /><Panel position="top-right" className="workflow-canvas-panel"><button type="button" onClick={() => addNode("scene")}><FiPlus size={13} /> {ko("Add node", "添加节点")}</button></Panel></ReactFlow></section><AgentPanel sceneName={sceneContext.name} /></div>
 	</div>;
 }

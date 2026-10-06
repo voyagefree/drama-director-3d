@@ -204,7 +204,7 @@ function displayHierarchyLabel(node) {
 const OUTLINER_TYPES = {
 	folder: "Folder",
 	mesh: "Mesh",
-	cast: "Cast",
+	cast: ko("Cast", "角色"),
 	cam: "Cam",
 	light: "Light",
 };

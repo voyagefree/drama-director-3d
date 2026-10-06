@@ -152,6 +152,7 @@ import {
 	activeSceneIndex,
 	createSceneStage,
 	normalizeReferenceImage,
+	createCharacterEntry,
 } from "./scenes.js";
 import {
 	hasFileSystemAccess,
@@ -163,6 +164,14 @@ import {
 	WORKFLOW_STORAGE_KEY,
 } from "./project.js";
 import ProjectBrowser, { ProjectNameDialog } from "./project-browser.jsx";
+import ProjectWorkbench from "./project-workbench.jsx";
+import {
+	loadEpisodes,
+	saveEpisodes,
+	loadCastLibrary,
+	saveCastLibrary,
+	setEpisodeScenes,
+} from "./project-episodes.js";
 import FirstSuccessGuide from "./first-success-guide.jsx";
 import UseCaseQuestion from "./use-case-question.jsx";
 import { CameraTutorial } from "./camera-tutorial.jsx";
@@ -531,6 +540,25 @@ export default function App() {
 	// Armed once the starter is applied, consumed by the seed effect next to the
 	// hosted-demo seed as soon as the new character's rig exists.
 	const [tutorialSeedPending, setTutorialSeedPending] = useState(false);
+	// Global pointer-hold counter. dualview reads it each frame to shed render
+	// cost while any drag (object gizmo or marquee) is in progress: DPR 1 and a
+	// deferred edge/ink pass. Shadow maps stay live because moving a prop must
+	// keep its contact shadow honest.
+	useEffect(() => {
+		let held = 0;
+		window.__cozyclayPointerHold = 0;
+		const down = () => { held += 1; window.__cozyclayPointerHold = held; };
+		const up = () => { held = Math.max(0, held - 1); window.__cozyclayPointerHold = held; };
+		window.addEventListener("pointerdown", down);
+		window.addEventListener("pointerup", up);
+		window.addEventListener("pointercancel", up);
+		return () => {
+			window.removeEventListener("pointerdown", down);
+			window.removeEventListener("pointerup", up);
+			window.removeEventListener("pointercancel", up);
+			delete window.__cozyclayPointerHold;
+		};
+	}, []);
 	useEffect(() => {
 		if (!cameraTutorialQuery || cameraTutorialStarted.current) return;
 		cameraTutorialStarted.current = true;
@@ -1509,6 +1537,38 @@ export default function App() {
 		return () => clearTimeout(timer);
 	}, [objectDeleteUndo]);
 
+	// Project workbench state: episodes + project-wide cast library. The
+	// session cache is localStorage; the .cclayproject file round-trips them
+	// through the shared refs (domains/scenes.js projectDocumentInput/applyProject)
+	// and a custom event re-reads them when a project file is opened.
+	const [projectWorkbenchOpen, setProjectWorkbenchOpen] = useState(false);
+	const [episodes, setEpisodes] = useState(() => loadEpisodes());
+	const [castLibrary, setCastLibrary] = useState(() => loadCastLibrary());
+	const episodesRef = useRef(episodes);
+	const castLibraryRef = useRef(castLibrary);
+	const applyEpisodes = (next) => {
+		const normalized = saveEpisodes(next);
+		episodesRef.current = normalized;
+		setEpisodes(normalized);
+	};
+	const applyCastLibrary = (next) => {
+		const normalized = saveCastLibrary(next);
+		castLibraryRef.current = normalized;
+		setCastLibrary(normalized);
+	};
+	useEffect(() => {
+		const onProjectEpisodesChange = () => {
+			const loadedEpisodes = loadEpisodes();
+			episodesRef.current = loadedEpisodes;
+			setEpisodes(loadedEpisodes);
+			const loadedCast = loadCastLibrary();
+			castLibraryRef.current = loadedCast;
+			setCastLibrary(loadedCast);
+		};
+		window.addEventListener("cozyclay:project-episodes-change", onProjectEpisodesChange);
+		return () => window.removeEventListener("cozyclay:project-episodes-change", onProjectEpisodesChange);
+	}, []);
+
 	const scenesDomain = useScenes(appContext.forRender({
 		get activeSceneIdRef() { return activeSceneIdRef; },
 		get actorStageRef() { return actorStageRef; },
@@ -1564,6 +1624,8 @@ export default function App() {
 		get tutorialStarterRef() { return tutorialStarterRef; },
 		get castDomain() { return castDomain; },
 		get objectsDomain() { return objectsDomain; },
+		get episodesRef() { return episodesRef; },
+		get castLibraryRef() { return castLibraryRef; },
 	}));
 	const {
 		scenes, activeSceneId, sceneSaveError, snapshotActiveScene, persistScenes, projectName, projectDirty,
@@ -1577,6 +1639,33 @@ export default function App() {
 		renameSceneDocumentFromUi, deleteSceneDocumentFromUi, switchSceneDocument, addSceneDocument,
 		duplicateSceneDocument, renameSceneDocument, deleteSceneDocument,
 	} = scenesDomain;
+
+	// Workbench → studio bridges: create a scene and attach it to an episode,
+	// or land a library character in the current scene's cast (undoable via
+	// cast.replace).
+	const handleNewSceneInEpisode = (episodeId) => {
+		addSceneDocument();
+		if (!episodeId) return;
+		const nextScenes = snapshotActiveScene();
+		const fresh = nextScenes[nextScenes.length - 1];
+		if (!fresh?.id) return;
+		const episode = episodes.find((entry) => entry.id === episodeId);
+		const nextEpisodes = setEpisodeScenes(episodes, episodeId, [...(episode?.sceneIds ?? []), fresh.id]);
+		applyEpisodes(nextEpisodes);
+	};
+	const handleApplyCastToScene = (entry) => {
+		const current = appContext.live.characters ?? [];
+		const next = [...current, createCharacterEntry({
+			id: `char-${Date.now().toString(36)}`,
+			model: entry?.modelId,
+			x: Math.min(2.2, current.length * 0.9),
+			z: 0.1,
+			rot: -10,
+			subject: entry?.subject || (entry?.name ? `${entry.name} (cast)` : "a character from the cast library"),
+		}, current.length)];
+		runStudioAction("cast.replace", { characters: next });
+		setProjectWorkbenchOpen(false);
+	};
 
 	const saveBlockedRef = useRef(startup.saveBlocked);
 	const dirtyRef = useRef(false);
@@ -6669,6 +6758,7 @@ export default function App() {
 	// The single shell snapshot keeps subsequent region work out of App.
 	const shellContext = {
 		projectMenuOpen, setProjectMenuOpen, projectDirty, projectName, projectStartupOpen,
+		projectWorkbenchOpen, setProjectWorkbenchOpen,
 		requestNewProject, setProjectStartupOpen, setProjectBrowserOpen, runStudioAction, saveProject,
 		projectManifest, projectSaveState, recState, exportMenuTriggerRef, exportMenuOpen,
 		exportShotIdRef, setExportMenuAnchor, setExportMenuOpen, exportPhaseLabel,
@@ -7491,6 +7581,21 @@ export default function App() {
 					else newProject(name);
 				}}
 			/>
+			{projectWorkbenchOpen && (
+				<ProjectWorkbench
+					projectName={projectName}
+					scenes={scenes}
+					activeSceneId={activeSceneId}
+					episodes={episodes}
+					castLibrary={castLibrary}
+					onEpisodesChange={applyEpisodes}
+					onCastChange={applyCastLibrary}
+					onSwitchScene={(sceneId) => switchSceneDocument(sceneId)}
+					onNewScene={handleNewSceneInEpisode}
+					onApplyCast={handleApplyCastToScene}
+					onClose={() => setProjectWorkbenchOpen(false)}
+				/>
+			)}
 			<FirstSuccessGuide open={firstSuccessGuideOpen} onDismiss={() => setFirstSuccessGuideOpen(false)} />
 			<UseCaseQuestion
 				open={useCaseAskOpen}

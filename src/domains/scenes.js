@@ -52,6 +52,7 @@ import { saveCustomPoses } from "../poses.js";
 import { readShotAuthoringDocument } from "../shot-authoring.js";
 import { initialShots } from "../cuts.js";
 import { createIkState } from "../ardy/ik.js";
+import { loadEpisodes, saveEpisodes, loadCastLibrary, saveCastLibrary } from "../project-episodes.js";
 
 // The scene list and project identity share one history. Dirty is derived from
 // the saved checkpoint, not an authored edit, and has its own non-history slice.
@@ -222,6 +223,10 @@ export function useScenes(appContext) {
 			customPoses: appContext.shared.projectStateRef.current.customPoses,
 			workflow: loadWorkflowGraph(),
 			name,
+			// Short-drama layers: episodes + the project-wide cast library ride
+			// along in the project file; absent on older files, never required.
+			episodes: appContext.shared.episodesRef?.current ?? loadEpisodes(),
+			castLibrary: appContext.shared.castLibraryRef?.current ?? loadCastLibrary(),
 		};
 	}
 
@@ -396,6 +401,14 @@ export function useScenes(appContext) {
 		const checked = readSceneDocument(JSON.stringify(project.scenesDocument));
 		if (!["valid", "migrated"].includes(checked.status)) throw new StudioProtocolError("INVALID_ARGUMENT", "Invalid project scene document.");
 		project = { ...project, scenesDocument: checked.document };
+		// Restore the short-drama layers carried by the project file (episodes +
+		// project-wide cast library) into the session cache and shared refs; the
+		// App listener re-reads them on this event.
+		const openedEpisodes = saveEpisodes(project.episodes ?? []);
+		const openedCast = saveCastLibrary(project.castLibrary ?? []);
+		if (appContext.shared.episodesRef) appContext.shared.episodesRef.current = openedEpisodes;
+		if (appContext.shared.castLibraryRef) appContext.shared.castLibraryRef.current = openedCast;
+		try { globalThis.dispatchEvent?.(new CustomEvent("cozyclay:project-episodes-change")); } catch { /* non-browser runtime */ }
 		appContext.shared.studioDocumentEpochRef.current = crypto.randomUUID();
 		appContext.shared.tutorialProjectEpochRef.current += 1;
 		appContext.shared.tutorialSeedEpochRef.current = null;

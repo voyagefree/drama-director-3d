@@ -182,9 +182,10 @@ export function useObjects(appContext) {
 	// atomic edit — one entry. updateSceneObject returns the same array when
 	// nothing changed, so a no-op can never create an entry.
 	function changeSceneObject(id, patch, token) {
-		return token != null
+		const result = token != null
 			? run("run.update", { txId: token, args: { id, patch } })
 			: run("object.update", { id, patch });
+		return result;
 	}
 
 	function deleteSelectedSceneObject() {

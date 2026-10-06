@@ -274,17 +274,21 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 			lastPose.valid = false;
 		}
 		const navigatingCamera = cameraGesture || cameraMoved;
+		// Any held pointer (object gizmo drag, marquee, camera gesture) or a moving
+		// IK poser sheds the same transient render cost; the shadows stay live for
+		// object drags, so only the DPR and edge/ink passes are cut.
+		const gestureActive = navigatingCamera || (typeof window !== "undefined" && (window.__cozyclayPointerHold ?? 0) > 0);
 		// Camera navigation is transient editor chrome: render it at one device
 		// pixel per CSS pixel, then restore the configured DPR before the first
 		// settled frame. At DPR 2 this cuts the moving viewport's fragment work to
 		// roughly a quarter without changing the authored or exported frame.
 		const pixelState = interactivePixelRatio.current;
-		if (navigatingCamera && !pixelState.reduced) {
+		if (gestureActive && !pixelState.reduced) {
 			pixelState.base = gl.getPixelRatio();
 			if (pixelState.base > 1) gl.setPixelRatio(1);
 			pixelState.reduced = true;
 			pixelState.needsFrozenRedraw = true;
-		} else if (!navigatingCamera && pixelState.reduced) {
+		} else if (!gestureActive && pixelState.reduced) {
 			gl.setPixelRatio(pixelState.base ?? 1);
 			pixelState.base = null;
 			pixelState.reduced = false;
@@ -293,7 +297,7 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 		// setPixelRatio resizes the shared canvas and clears its old pixels. Paint
 		// frozen panes once, without ink, after that resize; later gesture frames
 		// can leave them untouched again.
-		const redrawFrozenPanes = navigatingCamera && pixelState.needsFrozenRedraw;
+		const redrawFrozenPanes = gestureActive && pixelState.needsFrozenRedraw;
 		// Shadow maps are unchanged while only the camera moves. Three otherwise
 		// rebuilds every shadow map on every navigation frame, even though the
 		// poser scene is static, which is the largest hidden cost of right-drag.
@@ -401,7 +405,7 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 			if (previewRect.w < 2 || previewRect.h < 2) return;
 			const previewMask = shotCam.layers.mask;
 			shotCam.layers.disable(GIZMO_LAYER);
-			draw(shotCam, previewRect, fitAspect(previewRect, shotAspect), !navigatingCamera);
+			draw(shotCam, previewRect, fitAspect(previewRect, shotAspect), !gestureActive);
 			shotCam.layers.mask = previewMask;
 		};
 		// The heads' facing marks are the exported frame's heading cue, not
@@ -452,12 +456,12 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 				// separate camera-placement screen the framing lives on.
 				poserCam.aspect = mainRect.w / mainRect.h;
 				poserCam.updateProjectionMatrix();
-				drawEditorPane(poserCam, mainRect, null, !navigatingCamera);
-				if (!navigatingCamera || redrawFrozenPanes) drawVisibleInset(shotCam, insetRect, fitAspect(insetRect, shotAspect), !navigatingCamera);
+				drawEditorPane(poserCam, mainRect, null, !gestureActive);
+				if (!gestureActive || redrawFrozenPanes) drawVisibleInset(shotCam, insetRect, fitAspect(insetRect, shotAspect), !gestureActive);
 				drawPreviewCard();
 			} else if (planIsMain) {
 				draw(planCam, planPane, null, false);
-				if (!navigatingCamera || redrawFrozenPanes) drawVisibleInset(shotCam, shotPane, fitAspect(shotPane, shotAspect), !navigatingCamera);
+				if (!gestureActive || redrawFrozenPanes) drawVisibleInset(shotCam, shotPane, fitAspect(shotPane, shotAspect), !gestureActive);
 				drawPreviewCard();
 			} else if (editorCam && !lookThrough) {
 				// Split-camera editing: the main pane is the EDITOR camera — free
@@ -469,8 +473,8 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 				// A right-drag is a camera gesture even with IK off. Keep the main
 				// image readable while the camera is moving by deferring the expensive
 				// edge/ink pass until the gesture ends; the plan inset stays frozen.
-				drawEditorPane(editorCam, mainRect, null, !navigatingCamera);
-				if (!navigatingCamera || redrawFrozenPanes) drawVisibleInset(planCam, planPane, null, false);
+				drawEditorPane(editorCam, mainRect, null, !gestureActive);
+				if (!gestureActive || redrawFrozenPanes) drawVisibleInset(planCam, planPane, null, false);
 				drawPreviewCard();
 			} else {
 				// Shot camera in the main pane WITH the editing chrome. Look-through
@@ -478,8 +482,8 @@ export function DualRender({ stageRef, mainRef, insetRef, shotPreviewRef, shotCa
 				// can fly the recording lens with the same bindings as the free camera.
 				// The QA hook (`window.__cozyclay.setLookThrough`) draws the same path.
 				// Look-through is the recording lens: it keeps the authored stage.
-				draw(shotCam, shotPane, fitAspect(shotPane, shotAspect), !navigatingCamera);
-				if (!navigatingCamera || redrawFrozenPanes) drawVisibleInset(planCam, planPane, null, false);
+				draw(shotCam, shotPane, fitAspect(shotPane, shotAspect), !gestureActive);
+				if (!gestureActive || redrawFrozenPanes) drawVisibleInset(planCam, planPane, null, false);
 				drawPreviewCard();
 			}
 			if (redrawFrozenPanes) pixelState.needsFrozenRedraw = false;

@@ -38,19 +38,20 @@ import {
 	storePanelWidth,
 	STUDIO_SESSION_STORAGE_KEY,
 } from "./agent-client.js";
+import { ko } from "../locale.js";
 import "./agent-panel.css";
 
 function relativeTime(value, now = Date.now()) {
 	const at = Date.parse(value || "");
-	if (!Number.isFinite(at)) return "just now";
+	if (!Number.isFinite(at)) return ko("just now", null, "刚刚");
 	const seconds = Math.max(0, Math.floor((now - at) / 1000));
-	if (seconds < 60) return "just now";
+	if (seconds < 60) return ko("just now", null, "刚刚");
 	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) return `${minutes}m ago`;
+	if (minutes < 60) return ko("{n} minutes ago", null, "{n} 分钟前").replace("{n}", String(minutes));
 	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
+	if (hours < 24) return ko("{n} hours ago", null, "{n} 小时前").replace("{n}", String(hours));
 	const days = Math.floor(hours / 24);
-	return `${days}d ago`;
+	return ko("{n} days ago", null, "{n} 天前").replace("{n}", String(days));
 }
 
 function StatusDot({ tone, title }) {
@@ -68,16 +69,16 @@ function ToolCallCard({ call, presentation, onRetry }) {
 			<summary>
 				<StatusDot tone={tone} title={call.status} />
 				<span className="agent-tool-label">{resolveToolLabel(call, presentation.toolLabels)}</span>{hostTool && <span className="agent-tool-badge">{presentation.toolBadge}</span>}
-				<span className="agent-tool-elapsed">{call.status === "running" ? "running…" : call.status === "cancelled" ? (call.result?.status === "not_applied" ? "not applied" : "result unknown") : formatElapsed(call.elapsedMs)}</span>
+				<span className="agent-tool-elapsed">{call.status === "running" ? ko("running…", null, "运行中…") : call.status === "cancelled" ? (call.result?.status === "not_applied" ? ko("not applied", null, "未应用") : ko("result unknown", null, "结果未知")) : formatElapsed(call.elapsedMs)}</span>
 				<FiChevronRight size={12} aria-hidden="true" />
 			</summary>
 			<pre className="agent-tool-detail">{detail}</pre>
 		</details>
 		{call.failure && <div className="agent-error" role="alert">
-			<span>{call.failure.message || ERROR_COPY[call.failure.code] || "The turn failed."}</span>
+			<span>{call.failure.message || ERROR_COPY[call.failure.code] || ko("The turn failed.", null, "本轮失败。")}</span>
 			<div className="agent-error-actions">
-				<button type="button" className="agent-ghost-button agent-error-retry" onClick={onRetry}>Retry</button>
-				<button type="button" className="agent-ghost-button agent-error-details" onClick={(event) => { const card = event.currentTarget.closest(".agent-tool-card"); const details = card?.querySelector("details"); if (details) details.open = !details.open; }}>Details</button>
+				<button type="button" className="agent-ghost-button agent-error-retry" onClick={onRetry}>{ko("Retry", null, "重试")}</button>
+				<button type="button" className="agent-ghost-button agent-error-details" onClick={(event) => { const card = event.currentTarget.closest(".agent-tool-card"); const details = card?.querySelector("details"); if (details) details.open = !details.open; }}>{ko("Details", null, "详情")}</button>
 			</div>
 		</div>}
 	</div>;
@@ -91,11 +92,11 @@ function ImageResultCard({ image, onUse, onUndo, onRegenerate, onOpen }) {
 			<img src={image.dataUrl} width={image.width} height={image.height} alt={image.prompt || "Generated image"} onClick={() => onOpen(image)} />
 		</figure>
 		{image.placed
-			? <div className="agent-placed"><StatusDot tone="ok" />Placed<button type="button" className="agent-image-undo" disabled={applying} onClick={() => onUndo(image)}>{applying ? "Removing…" : "Undo"}</button></div>
+			? <div className="agent-placed"><StatusDot tone="ok" />{ko("Placed", null, "已放置")}<button type="button" className="agent-image-undo" disabled={applying} onClick={() => onUndo(image)}>{applying ? ko("Removing…", null, "移除中…") : ko("Undo", null, "撤销")}</button></div>
 			: <div className="agent-image-actions">
-				<button type="button" className="primary agent-image-use" disabled={applying} onClick={() => onUse(image)}><FiImage size={11} /> {applying ? "Applying…" : "Use in scene"}</button>
-				<a className="agent-image-download" role="button" href={image.dataUrl} download={`${image.imageId || "agent-image"}.png`}><FiDownload size={11} /> Download</a>
-				<button type="button" className="agent-image-regenerate" onClick={() => onRegenerate(image)}><FiRotateCw size={11} /> Regenerate</button>
+				<button type="button" className="primary agent-image-use" disabled={applying} onClick={() => onUse(image)}><FiImage size={11} /> {applying ? ko("Applying…", null, "应用中…") : ko("Use in scene", null, "用于场景")}</button>
+				<a className="agent-image-download" role="button" href={image.dataUrl} download={`${image.imageId || "agent-image"}.png`}><FiDownload size={11} /> {ko("Download", null, "下载")}</a>
+				<button type="button" className="agent-image-regenerate" onClick={() => onRegenerate(image)}><FiRotateCw size={11} /> {ko("Regenerate", null, "重新生成")}</button>
 			</div>}
 		{/* The card states what the editor actually did: an unacknowledged or
 		    refused action is never drawn as a placement. */}
@@ -111,13 +112,13 @@ function PausedCard({ resetAt, onRetry, onSwitchModel }) {
 	}, []);
 	const countdown = formatResetIn(resetAt, now);
 	return <div className="agent-paused" data-agent-card="rate-limited" role="status">
-		<div className="agent-paused-head"><FiClock size={12} aria-hidden="true" /> Paused — usage limit reached
-			<span className="agent-paused-countdown">{countdown ? `resets in ${countdown}` : "resets soon"}</span>
+		<div className="agent-paused-head"><FiClock size={12} aria-hidden="true" /> {ko("Paused — usage limit reached", null, "已暂停——用量上限已到")}
+			<span className="agent-paused-countdown">{countdown ? ko("resets in {countdown}", null, "{countdown} 后重置").replace("{countdown}", countdown) : ko("resets soon", null, "即将重置")}</span>
 		</div>
 		<p style={{ margin: 0 }}>{ERROR_COPY.rate_limit}</p>
 		<div className="agent-paused-actions">
-			<button type="button" className="agent-paused-wait" onClick={onRetry}>Wait &amp; retry</button>
-			<button type="button" className="agent-paused-switch" onClick={onSwitchModel}>Switch model</button>
+			<button type="button" className="agent-paused-wait" onClick={onRetry}>{ko("Wait & retry", null, "等待并重试")}</button>
+			<button type="button" className="agent-paused-switch" onClick={onSwitchModel}>{ko("Switch model", null, "切换模型")}</button>
 		</div>
 	</div>;
 }
@@ -133,28 +134,28 @@ function JobCard({ job, onStop, onAccept }) {
 	const unverified = job.state === "review_required" || job.verification?.status === "unverified";
 	const limitations = job.verification?.limitations ?? [];
 	// An unverified take is installed all the same; the label says both.
-	const label = job.state === "installed" && unverified ? "Installed with warnings" : JOB_STATE_COPY[job.state] || job.state;
+	const label = job.state === "installed" && unverified ? ko("Installed with warnings", null, "已安装（有警告）") : JOB_STATE_COPY[job.state] || job.state;
 	return <div className="agent-card agent-job-card" data-job-id={job.jobId} data-job-state={job.state}>
 		<div className="agent-job-head">
 			<StatusDot tone={jobStateTone(job.state)} title={job.state} />
 			<span className="agent-job-label">{label}</span>
-			{unverified && <span className="agent-job-badge">Unverified</span>}
+			{unverified && <span className="agent-job-badge">{ko("Unverified", null, "未验证")}</span>}
 			{percent !== null && <span className="agent-job-progress">{formatJobProgress(job.progress)}</span>}
 		</div>
 		{phase && <p className="agent-job-phase">{phase}</p>}
 		{/* An acknowledged Stop states what happened to the scene; the state label
 		    alone does not. Uncertainty is reported as uncertainty, never as safety. */}
-		{job.outcome?.status === "not_applied" && <p className="agent-job-outcome">Not applied — scene unchanged.</p>}
-		{job.outcome?.status === "unknown" && <p className="agent-job-outcome">Stopped, but the result is unknown — reconcile before editing this target.</p>}
+		{job.outcome?.status === "not_applied" && <p className="agent-job-outcome">{ko("Not applied — scene unchanged.", null, "未应用——场景未改变。")}</p>}
+		{job.outcome?.status === "unknown" && <p className="agent-job-outcome">{ko("Stopped, but the result is unknown — reconcile before editing this target.", null, "已停止，但结果未知——编辑此目标前请先核对。")}</p>}
 		{percent !== null && <div className="agent-job-bar" role="progressbar" aria-label="Generation progress" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
 			<span className="agent-job-bar-fill" style={{ transform: `scaleX(${job.progress})` }} />
 		</div>}
 		{limitations.length > 0 && <ul className="agent-job-limits">{limitations.map((limit) => <li key={limit}>{limit}</li>)}</ul>}
 		<div className="agent-job-actions">
-			{running && job.state !== "review_required" && <button type="button" className="agent-ghost-button agent-job-stop" onClick={() => onStop(job)}>Stop</button>}
-			{job.acceptance?.status === "required" && <button type="button" className="agent-ghost-button agent-job-accept" onClick={() => onAccept(job)}><FiAlertTriangle size={11} /> Apply with warnings</button>}
-			{job.acceptance?.status === "accepting" && <span className="agent-job-note">Applying…</span>}
-			{job.acceptance?.status === "accepted" && <span className="agent-job-note"><FiCheck size={11} /> Applied at your request</span>}
+			{running && job.state !== "review_required" && <button type="button" className="agent-ghost-button agent-job-stop" onClick={() => onStop(job)}>{ko("Stop", null, "停止")}</button>}
+			{job.acceptance?.status === "required" && <button type="button" className="agent-ghost-button agent-job-accept" onClick={() => onAccept(job)}><FiAlertTriangle size={11} /> {ko("Apply with warnings", null, "带警告应用")}</button>}
+			{job.acceptance?.status === "accepting" && <span className="agent-job-note">{ko("Applying…", null, "应用中…")}</span>}
+			{job.acceptance?.status === "accepted" && <span className="agent-job-note"><FiCheck size={11} /> {ko("Applied at your request", null, "已按你的要求应用")}</span>}
 			{job.acceptance?.error && <span className="agent-job-note alert" role="alert">{job.acceptance.error}</span>}
 		</div>
 	</div>;
@@ -169,7 +170,7 @@ function ReceiptCard({ item }) {
 	return <div className="agent-card agent-receipt-card" data-receipt-id={item.receiptId} data-receipt-status={receipt.status}>
 		<div className="agent-receipt-head">
 			<StatusDot tone={unverified ? "warn" : "ok"} title={receipt.status} />
-			{installedWithWarnings && <span className="agent-job-label">Installed with warnings</span>}
+			{installedWithWarnings && <span className="agent-job-label">{ko("Installed with warnings", null, "已安装（有警告）")}</span>}
 			<span className="agent-receipt-summary">{summary}</span>
 		</div>
 		{(warnings.length > 0 || limitations.length > 0) && <ul className="agent-receipt-notes">
@@ -178,25 +179,25 @@ function ReceiptCard({ item }) {
 		</ul>}
 		{/* The pane has no direct Undo into the Studio editor; it names the two
 		    paths that do exist rather than drawing a button it cannot honour. */}
-		{installedWithWarnings && <p className="agent-job-note">Undo with Cmd+Z or ask the agent.</p>}
+		{installedWithWarnings && <p className="agent-job-note">{ko("Undo with Cmd+Z or ask the agent.", null, "用 Cmd+Z 撤销，或让智能体处理。")}</p>}
 	</div>;
 }
 
 const RECOVERY_COPY = {
-	none: "No recovery is available for this command.",
-	inspect: "Ask the agent to inspect the target before trying again.",
-	retry: "The same command can be retried.",
-	new_intent: "Tell the agent what to do with the changed target.",
-	reconcile: "The result is unknown; reconcile before changing this target.",
-	sign_in: "Sign in again to continue.",
+	none: ko("No recovery is available for this command.", null, "此命令无法恢复。"),
+	inspect: ko("Ask the agent to inspect the target before trying again.", null, "请让智能体先检查目标再重试。"),
+	retry: ko("The same command can be retried.", null, "同一命令可以重试。"),
+	new_intent: ko("Tell the agent what to do with the changed target.", null, "告诉智能体如何处理已改变的目标。"),
+	reconcile: ko("The result is unknown; reconcile before changing this target.", null, "结果未知；更改此目标前请先核对。"),
+	sign_in: ko("Sign in again to continue.", null, "请重新登录以继续。"),
 };
 
 function FailureCard({ failure, onRetry }) {
 	return <div className="agent-card agent-failure-card" data-failure-code={failure.code} role="alert">
 		<div className="agent-failure-head"><FiAlertTriangle size={12} aria-hidden="true" /><span className="agent-failure-code">{failure.code}</span></div>
-		<p className="agent-failure-message">{failure.message || "The command did not complete."}</p>
-		<p className="agent-failure-recovery">{RECOVERY_COPY[failure.recovery?.action] || RECOVERY_COPY.none}{failure.preserved?.authoredState === "unchanged" ? " Nothing in the scene changed." : failure.preserved?.authoredState === "unknown" ? " Whether the scene changed is unknown." : ""}</p>
-		{failure.recovery?.retryAllowed && <div className="agent-error-actions"><button type="button" className="agent-ghost-button agent-error-retry" onClick={onRetry}>Retry</button></div>}
+		<p className="agent-failure-message">{failure.message || ko("The command did not complete.", null, "命令未能完成。")}</p>
+		<p className="agent-failure-recovery">{RECOVERY_COPY[failure.recovery?.action] || RECOVERY_COPY.none}{failure.preserved?.authoredState === "unchanged" ? ko(" Nothing in the scene changed.", null, " 场景未发生任何改变。") : failure.preserved?.authoredState === "unknown" ? ko(" Whether the scene changed is unknown.", null, " 场景是否改变未知。") : ""}</p>
+		{failure.recovery?.retryAllowed && <div className="agent-error-actions"><button type="button" className="agent-ghost-button agent-error-retry" onClick={onRetry}>{ko("Retry", null, "重试")}</button></div>}
 	</div>;
 }
 
@@ -211,7 +212,7 @@ function ProviderKeyRow({ provider, onSave, onRemove }) {
 	const [error, setError] = useState("");
 	const fromEnv = provider.authSource === "env";
 	const fromFile = provider.authSource === "file";
-	const envLabel = `set by ${providerEnvLabel(provider.id)}`;
+	const envLabel = ko("set by {env}", null, "由 {env} 设置").replace("{env}", providerEnvLabel(provider.id));
 	const inputId = `agent-key-${provider.id}`;
 	const run = async (action) => {
 		setBusy(true);
@@ -222,18 +223,18 @@ function ProviderKeyRow({ provider, onSave, onRemove }) {
 			setDraft("");
 		} catch (failure) {
 			// The sidecar's own refusal, which never quotes key material.
-			setError(failure?.message || "The sidecar refused that key.");
+			setError(failure?.message || ko("The sidecar refused that key.", null, "服务端拒绝了该密钥。"));
 		} finally {
 			setBusy(false);
 		}
 	};
 	return <div className="agent-key-row" data-provider={provider.id} data-provider-source={provider.authSource || "none"} data-provider-signed-in={provider.signedIn ? "true" : "false"}>
 		<div className="agent-key-head">
-			<StatusDot tone={provider.signedIn ? "ok" : ""} title={provider.signedIn ? "key configured" : "no key"} />
+			<StatusDot tone={provider.signedIn ? "ok" : ""} title={provider.signedIn ? ko("key configured", null, "已配置密钥") : ko("no key", null, "无密钥")} />
 			<label className="agent-key-label" htmlFor={inputId}>{provider.label}</label>
 			{/* The head states WHERE the key lives in two words; the variable's own
 			    name belongs on the input it replaces, where there is room for it. */}
-			<span className="agent-key-source">{fromEnv ? "environment" : fromFile ? "saved on this machine" : "no key"}</span>
+			<span className="agent-key-source">{fromEnv ? ko("environment", null, "环境变量") : fromFile ? ko("saved on this machine", null, "已保存在本机") : ko("no key", null, "无密钥")}</span>
 		</div>
 		<div className="agent-key-controls">
 			<input
@@ -243,13 +244,13 @@ function ProviderKeyRow({ provider, onSave, onRemove }) {
 				autoComplete="off"
 				spellCheck="false"
 				aria-label={`${provider.label} API key`}
-				placeholder={fromEnv ? envLabel : provider.signedIn ? "Replace key" : "Paste API key"}
+				placeholder={fromEnv ? envLabel : provider.signedIn ? ko("Replace key", null, "替换密钥") : ko("Paste API key", null, "粘贴 API 密钥")}
 				disabled={fromEnv || busy}
 				value={draft}
 				onChange={(event) => { setDraft(event.target.value); setError(""); }}
 			/>
-			<button type="button" className="agent-key-save" disabled={fromEnv || busy || !draft.trim()} onClick={() => run(() => onSave(provider.id, draft))}>Save</button>
-			{fromFile && <button type="button" className="agent-ghost-button agent-key-remove" disabled={busy} onClick={() => run(() => onRemove(provider.id))}>Remove</button>}
+			<button type="button" className="agent-key-save" disabled={fromEnv || busy || !draft.trim()} onClick={() => run(() => onSave(provider.id, draft))}>{ko("Save", null, "保存")}</button>
+			{fromFile && <button type="button" className="agent-ghost-button agent-key-remove" disabled={busy} onClick={() => run(() => onRemove(provider.id))}>{ko("Remove", null, "移除")}</button>}
 		</div>
 		{error && <p className="agent-key-error" role="alert">{error}</p>}
 	</div>;
@@ -385,7 +386,7 @@ export default function AgentPanel({
 			} catch {
 				if (!cancelled) {
 					store.newSession();
-					setRestoreNotice("Previous conversation could not be restored");
+					setRestoreNotice(ko("Previous conversation could not be restored", null, "无法恢复之前的对话"));
 				}
 			} finally {
 				if (!cancelled) setRestoreReady(true);
@@ -406,8 +407,8 @@ export default function AgentPanel({
 	const activity = model
 		? describeActivity(chat, { now: activityNow, toolLabel: (call) => resolveToolLabel(call, presentation.toolLabels) })
 		: modelsState === "failed"
-			? { phase: "no-model", kind: "terminal", tone: "alert", text: "No model available — the agent service did not answer with one", ticking: false }
-			: { phase: "models", kind: "live", tone: "busy", text: "Loading models…", ticking: false };
+			? { phase: "no-model", kind: "terminal", tone: "alert", text: ko("No model available — the agent service did not answer with one", null, "没有可用模型——智能体服务未返回模型"), ticking: false }
+			: { phase: "models", kind: "live", tone: "busy", text: ko("Loading models…", null, "正在加载模型…"), ticking: false };
 	useEffect(() => {
 		if (!activity.ticking) return;
 		const timer = setInterval(() => setActivityNow(Date.now()), 500);
@@ -657,7 +658,7 @@ export default function AgentPanel({
 		setAttachNotice(null);
 		setSteerNotice("");
 		const result = await store.steer(text);
-		if (!result.ok) setSteerNotice(result.message || "The running turn did not take that message.");
+		if (!result.ok) setSteerNotice(result.message || ko("The running turn did not take that message.", null, "运行中的轮次未接收该消息。"));
 	}, [store]);
 
 	// A sign-in that succeeds is an authentication transition, not a status
@@ -711,7 +712,7 @@ export default function AgentPanel({
 			setHistoryOpen(false);
 			setRestoreNotice("");
 		} catch {
-			setRestoreNotice("Previous conversation could not be restored");
+			setRestoreNotice(ko("Previous conversation could not be restored", null, "无法恢复之前的对话"));
 		}
 	}, [store, transport]);
 
@@ -785,9 +786,9 @@ export default function AgentPanel({
 
 	if (collapsed && !embedded) {
 		return <aside className="agent-panel collapsed" data-agent-state={panelState} data-agent-collapsed="true" aria-label="Agent panel, collapsed">
-			<button type="button" className="agent-rail-toggle" onClick={() => setCollapsed(false)} aria-label="Expand agent panel" title="Expand agent panel (Cmd/Ctrl+B)"><FiChevronRight size={13} style={{ transform: "rotate(180deg)" }} /></button>
+			<button type="button" className="agent-rail-toggle" onClick={() => setCollapsed(false)} aria-label={ko("Expand agent panel", null, "展开智能体面板")} title={ko("Expand agent panel (Cmd/Ctrl+B)", null, "展开智能体面板（Cmd/Ctrl+B）")}><FiChevronRight size={13} style={{ transform: "rotate(180deg)" }} /></button>
 			<StatusDot tone={statusTone} title={panelState} />
-			<span className="agent-rail-label">Agent</span>
+			<span className="agent-rail-label">{ko("Agent", null, "智能体")}</span>
 		</aside>;
 	}
 
@@ -799,11 +800,11 @@ export default function AgentPanel({
 		data-agent-width={embedded ? undefined : width}
 		data-agent-overlay={overlay && !embedded ? "true" : "false"}
 		data-agent-embedded={embedded ? "true" : "false"}
-		aria-label="Agent"
+		aria-label={ko("Agent", null, "智能体")}
 	>
 		{!embedded && <div
 			role="separator"
-			aria-label="Resize agent panel"
+			aria-label={ko("Resize agent panel", null, "调整智能体面板宽度")}
 			aria-orientation="vertical"
 			aria-valuenow={width}
 			aria-valuemin={AGENT_PANEL_WIDTH_MIN}
@@ -819,34 +820,34 @@ export default function AgentPanel({
 
 		<header className="agent-header">
 			<StatusDot tone={statusTone} title={panelState} />
-			<h2 className="agent-title">Agent</h2>
+			<h2 className="agent-title">{ko("Agent", null, "智能体")}</h2>
 			<span className="agent-header-spacer" />
-			<button type="button" className="agent-icon-button agent-new" aria-label="New conversation" title="New conversation" onClick={newSession}><FiPlus size={14} aria-hidden="true" /></button>
+			<button type="button" className="agent-icon-button agent-new" aria-label={ko("New conversation", null, "新对话")} title={ko("New conversation", null, "新对话")} onClick={newSession}><FiPlus size={14} aria-hidden="true" /></button>
 			{presentation.history && <span className="agent-history-wrap">
-				<button type="button" className="agent-icon-button agent-history" aria-label="History" title="History" aria-haspopup="listbox" aria-expanded={surface === "studio" ? historyOpen : undefined} onClick={surface === "studio" ? openHistory : undefined} disabled={surface !== "studio"}><FiClock size={13} aria-hidden="true" /></button>
-				{surface === "studio" && historyOpen && <div className="agent-history-popover" role="listbox" aria-label="Agent history">
+				<button type="button" className="agent-icon-button agent-history" aria-label={ko("History", null, "历史")} title={ko("History", null, "历史")} aria-haspopup="listbox" aria-expanded={surface === "studio" ? historyOpen : undefined} onClick={surface === "studio" ? openHistory : undefined} disabled={surface !== "studio"}><FiClock size={13} aria-hidden="true" /></button>
+				{surface === "studio" && historyOpen && <div className="agent-history-popover" role="listbox" aria-label={ko("Agent history", null, "智能体历史")}>
 					{historySessions.length ? historySessions.map((entry) => <button type="button" role="option" className="agent-history-item" key={entry.sessionId} onClick={() => restoreHistorySession(entry.sessionId)}>
 						<span className="agent-history-time">{relativeTime(entry.updatedAt)}</span>
-						<span className="agent-history-text">{entry.firstText || "Untitled conversation"}</span>
-					</button>) : <span className="agent-history-empty">No previous conversations</span>}
+						<span className="agent-history-text">{entry.firstText || ko("Untitled conversation", null, "未命名对话")}</span>
+					</button>) : <span className="agent-history-empty">{ko("No previous conversations", null, "暂无历史对话")}</span>}
 				</div>}
 			</span>}
 			<span className="agent-overflow">
-				<button type="button" className="agent-icon-button agent-overflow-toggle" aria-haspopup="menu" aria-expanded={menuOpen} aria-label="More agent actions" onClick={() => setMenuOpen((value) => !value)}><FiMoreHorizontal size={13} /></button>
+				<button type="button" className="agent-icon-button agent-overflow-toggle" aria-haspopup="menu" aria-expanded={menuOpen} aria-label={ko("More agent actions", null, "更多智能体操作")} onClick={() => setMenuOpen((value) => !value)}><FiMoreHorizontal size={13} /></button>
 				{menuOpen && <div className="agent-menu" role="menu">
 					{/* Who the session is lives with the actions that change it, not
 					    as a standing strip over the conversation. */}
 					{account?.signedIn && <div className="agent-account" role="presentation">
 						<span className="agent-account-email">{account.email}</span>
-						<span className="agent-plan-badge">{quota?.plan || account.plan || "Free"}</span>
-						{resetLabel && <span className="agent-account-reset">resets in {resetLabel}</span>}
+						<span className="agent-plan-badge">{quota?.plan || account.plan || ko("Free", null, "免费")}</span>
+						{resetLabel && <span className="agent-account-reset">{ko("resets in {label}", null, "{label} 后重置").replace("{label}", resetLabel)}</span>}
 					</div>}
-					<button type="button" role="menuitem" onClick={clearContext}>Clear context</button>
-					<button type="button" role="menuitem" className="agent-menu-keys" aria-expanded={keysOpen} onClick={toggleProviderKeys}>Provider keys…</button>
-					<button type="button" role="menuitem" onClick={signOut}>Sign out</button>
+					<button type="button" role="menuitem" onClick={clearContext}>{ko("Clear context", null, "清除上下文")}</button>
+					<button type="button" role="menuitem" className="agent-menu-keys" aria-expanded={keysOpen} onClick={toggleProviderKeys}>{ko("Provider keys…", null, "服务商密钥…")}</button>
+					<button type="button" role="menuitem" onClick={signOut}>{ko("Sign out", null, "退出登录")}</button>
 				</div>}
 			</span>
-			{!embedded && <button type="button" className="agent-icon-button agent-collapse" onClick={() => setCollapsed(true)} aria-label="Collapse agent panel" title="Collapse agent panel (Cmd/Ctrl+B)"><FiChevronRight size={13} /></button>}
+			{!embedded && <button type="button" className="agent-icon-button agent-collapse" onClick={() => setCollapsed(true)} aria-label={ko("Collapse agent panel", null, "收起智能体面板")} title={ko("Collapse agent panel (Cmd/Ctrl+B)", null, "收起智能体面板（Cmd/Ctrl+B）")}><FiChevronRight size={13} /></button>}
 		</header>
 
 		{restoreNotice && <div className="agent-toast" role="status">{restoreNotice}</div>}
@@ -856,32 +857,32 @@ export default function AgentPanel({
 		    conversation and the credentials it runs on are managed. */}
 		{keysOpen && <section className="agent-keys" aria-label="Provider keys" data-agent-keys="true">
 			<div className="agent-keys-head">
-				<h3 className="agent-keys-title">Provider keys</h3>
-				<button type="button" className="agent-icon-button agent-keys-close" aria-label="Close provider keys" onClick={() => setKeysOpen(false)}><FiX size={11} aria-hidden="true" /></button>
+				<h3 className="agent-keys-title">{ko("Provider keys", null, "服务商密钥")}</h3>
+				<button type="button" className="agent-icon-button agent-keys-close" aria-label={ko("Close provider keys", null, "关闭服务商密钥")} onClick={() => setKeysOpen(false)}><FiX size={11} aria-hidden="true" /></button>
 			</div>
-			<p className="agent-keys-hint">Keys are stored by the local CozyClay service and are never shown again.</p>
-			{providersState === "loading" && <p className="agent-keys-note">Loading providers…</p>}
-			{providersState === "failed" && <p className="agent-keys-note alert" role="alert">The provider list is unavailable.</p>}
+			<p className="agent-keys-hint">{ko("Keys are stored by the local CozyClay service and are never shown again.", null, "密钥由本地 CozyClay 服务保存，不会再显示。")}</p>
+			{providersState === "loading" && <p className="agent-keys-note">{ko("Loading providers…", null, "正在加载服务商…")}</p>}
+			{providersState === "failed" && <p className="agent-keys-note alert" role="alert">{ko("The provider list is unavailable.", null, "无法获取服务商列表。")}</p>}
 			{providers.filter((entry) => entry.id !== "openai-codex").map((entry) => <ProviderKeyRow key={entry.id} provider={entry} onSave={saveProviderKey} onRemove={removeProviderKey} />)}
 		</section>}
 
-		<div className="agent-transcript" ref={transcriptRef} aria-live="polite" aria-label="Conversation" data-agent-transcript="true">
+		<div className="agent-transcript" ref={transcriptRef} aria-live="polite" aria-label={ko("Conversation", null, "对话")} data-agent-transcript="true">
 			{authState === "signed-out" && <div className="agent-state-card" data-agent-card="signed-out">
-				<h3>Sign in with ChatGPT</h3>
-				<p>The agent runs against your ChatGPT plan. Sign-in happens in your browser — no token is ever stored in this page.</p>
-				<button type="button" className="agent-primary-button agent-signin" onClick={signIn}>Sign in with ChatGPT</button>
+				<h3>{ko("Sign in with ChatGPT", null, "使用 ChatGPT 登录")}</h3>
+				<p>{ko("The agent runs against your ChatGPT plan. Sign-in happens in your browser — no token is ever stored in this page.", null, "智能体使用你的 ChatGPT 套餐运行。登录在你的浏览器中完成——本页面不会保存任何令牌。")}</p>
+				<button type="button" className="agent-primary-button agent-signin" onClick={signIn}>{ko("Sign in with ChatGPT", null, "使用 ChatGPT 登录")}</button>
 			</div>}
 
 			{authState === "signing-in" && <div className="agent-state-card" data-agent-card="signing-in">
 				<span className="agent-spinner" aria-hidden="true" />
-				<h3>Waiting for your browser…</h3>
-				<p>Finish the ChatGPT sign-in in the tab that just opened. This panel picks up the session when you come back.</p>
+				<h3>{ko("Waiting for your browser…", null, "正在等待你的浏览器…")}</h3>
+				<p>{ko("Finish the ChatGPT sign-in in the tab that just opened. This panel picks up the session when you come back.", null, "请在刚打开的标签页中完成 ChatGPT 登录。返回时本面板会自动恢复会话。")}</p>
 			</div>}
 
 			{authState === "no-entitlement" && <div className="agent-state-card" data-agent-card="no-entitlement">
-				<h3>Image generation is not on this plan</h3>
-				<p>Signed in as {account?.email || "your account"}. Chat and tool calls work; image results need a plan with image generation.</p>
-				<button type="button" className="agent-primary-button" onClick={() => window.open("https://chatgpt.com/#pricing", "_blank", "noopener,noreferrer")}>See plans</button>
+				<h3>{ko("Image generation is not on this plan", null, "当前套餐不含图像生成")}</h3>
+				<p>{ko("Signed in as {email}. Chat and tool calls work; image results need a plan with image generation.", null, "已以 {email} 登录。聊天与工具调用可用；图像结果需要包含图像生成的套餐。").replace("{email}", account?.email || ko("your account", null, "你的账号"))}</p>
+				<button type="button" className="agent-primary-button" onClick={() => window.open("https://chatgpt.com/#pricing", "_blank", "noopener,noreferrer")}>{ko("See plans", null, "查看套餐")}</button>
 			</div>}
 
 			{authState === "ready" && !items.length && !rateLimit && <div className="agent-state-card" data-agent-card="ready">
@@ -924,10 +925,10 @@ export default function AgentPanel({
 			onDragLeave={composerDisabled ? undefined : onComposerDragLeave}
 			onDrop={composerDisabled ? undefined : onComposerDrop}
 		>
-			{pendingAttachments.length > 0 && <ul className="agent-attachments" aria-label="Attached images">
+			{pendingAttachments.length > 0 && <ul className="agent-attachments" aria-label={ko("Attached images", null, "附加的图片")}>
 				{pendingAttachments.map((attachment) => <li key={attachment.id} className="agent-attachment">
 					<img src={attachment.dataUrl} alt={attachment.name || "Attached image"} />
-					<button type="button" className="agent-attachment-remove" aria-label={`Remove ${attachment.name || "attached image"}`} onClick={() => store.removeAttachment(attachment.id)}><FiX size={10} aria-hidden="true" /></button>
+					<button type="button" className="agent-attachment-remove" aria-label={ko("Remove {name}", null, "移除 {name}").replace("{name}", attachment.name || ko("attached image", null, "附加的图片"))} onClick={() => store.removeAttachment(attachment.id)}><FiX size={10} aria-hidden="true" /></button>
 				</li>)}
 			</ul>}
 			{attachNotice && <p className="agent-attachment-notice" role="status">{attachNotice}</p>}
@@ -937,8 +938,8 @@ export default function AgentPanel({
 				<textarea
 					ref={composerRef}
 					className="agent-input"
-					aria-label="Message the agent"
-					placeholder={panelState === "rate-limited" ? "Composer is paused" : model ? presentation.composerPlaceholder : "Waiting for the model list…"}
+					aria-label={ko("Message the agent", null, "给智能体发消息")}
+					placeholder={panelState === "rate-limited" ? ko("Composer is paused", null, "输入已暂停") : model ? presentation.composerPlaceholder : ko("Waiting for the model list…", null, "正在等待模型列表…")}
 					value={draft}
 					disabled={composerDisabled}
 					onChange={(event) => store.setDraft(event.target.value)}
@@ -948,7 +949,7 @@ export default function AgentPanel({
 					onDrop={onComposerDrop}
 				/>
 				<div className="agent-composer-controls">
-					<button type="button" className="agent-attach-chip" aria-pressed={attachFrame} aria-label="Attach current frame" title="Attach current frame" onClick={() => setAttachFrame((value) => !value)}>
+					<button type="button" className="agent-attach-chip" aria-pressed={attachFrame} aria-label={ko("Attach current frame", null, "附加当前帧")} title={ko("Attach current frame", null, "附加当前帧")} onClick={() => setAttachFrame((value) => !value)}>
 						{attachFrame ? <span className="agent-attach-thumb" aria-hidden="true" /> : <FiPaperclip size={13} aria-hidden="true" />}
 					</button>
 					{/* Five providers in one dropdown: grouped by the provider that serves
@@ -958,18 +959,18 @@ export default function AgentPanel({
 						{modelProviders.length
 							? modelProviders.map((provider) => <optgroup key={provider.id} label={provider.label}>
 								{provider.models.length
-									? provider.models.map((entry) => <option key={entry.key} value={entry.key} disabled={!provider.signedIn}>{provider.signedIn ? entry.label : `${entry.label} — add key`}</option>)
-									: <option value={`${provider.id}/`} disabled>{provider.signedIn ? "No models" : "No models — add key"}</option>}
+									? provider.models.map((entry) => <option key={entry.key} value={entry.key} disabled={!provider.signedIn}>{provider.signedIn ? entry.label : ko("{label} — add key", null, "{label} — 添加密钥").replace("{label}", entry.label)}</option>)
+									: <option value={`${provider.id}/`} disabled>{provider.signedIn ? ko("No models", null, "无模型") : ko("No models — add key", null, "无模型 — 添加密钥")}</option>}
 							</optgroup>)
 							: models.length
 								? models.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)
-								: <option value="">{modelsState === "failed" ? "No model available" : "Loading models…"}</option>}
+								: <option value="">{modelsState === "failed" ? ko("No model available", null, "没有可用模型") : ko("Loading models…", null, "正在加载模型…")}</option>}
 					</select>
 					{efforts.length > 0 && (
 						<select className="agent-model-select agent-effort-select" aria-label="Reasoning effort" title="Reasoning effort" value={effort ?? efforts[0]} onChange={(event) => setEffort(event.target.value)}>
 							{/* The closed select shows only the word; "default" rides in the
 							    option's tooltip so the composer row stays one line. */}
-							{efforts.map((value, index) => <option key={value} value={value} title={index === 0 ? "Default for this model" : undefined}>{value}</option>)}
+							{efforts.map((value, index) => <option key={value} value={value} title={index === 0 ? ko("Default for this model", null, "此模型的默认档") : undefined}>{value}</option>)}
 						</select>
 					)}
 					<span className="agent-composer-spacer" aria-hidden="true" />
@@ -977,8 +978,8 @@ export default function AgentPanel({
 						type="button"
 						className="agent-attach-chip agent-i2v-action"
 						data-testid="i2v-agent-action"
-						aria-label="Generate motion"
-						title="Generate motion from this message"
+						aria-label={ko("Generate motion", null, "生成动作")}
+						title={ko("Generate motion from this message", null, "根据此消息生成动作")}
 						disabled={composerDisabled || !draft.trim() || streaming}
 						onClick={() => { const instruction = draft.trim(); store.setDraft(""); i2vActionRef.current?.(instruction); }}
 					>
@@ -988,10 +989,10 @@ export default function AgentPanel({
 					    that can be steered, Send becomes the way INTO it. */}
 					{streaming
 						? <>
-							<button type="button" className="agent-send stop agent-stop" onClick={stopTurn}>Stop</button>
-							{presentation.steer && <button type="button" className="agent-send agent-steer" disabled={!draft.trim()} onClick={() => steerTurn(draft)}>Steer</button>}
+							<button type="button" className="agent-send stop agent-stop" onClick={stopTurn}>{ko("Stop", null, "停止")}</button>
+							{presentation.steer && <button type="button" className="agent-send agent-steer" disabled={!draft.trim()} onClick={() => steerTurn(draft)}>{ko("Steer", null, "转向")}</button>}
 						</>
-						: <button type="button" className="agent-send" aria-label="Send" title="Send (Enter)" disabled={composerDisabled || !draft.trim()} onClick={() => runTurn(draft)}><FiArrowUp size={14} aria-hidden="true" /></button>}
+						: <button type="button" className="agent-send" aria-label={ko("Send", null, "发送")} title={ko("Send (Enter)", null, "发送（Enter）")} disabled={composerDisabled || !draft.trim()} onClick={() => runTurn(draft)}><FiArrowUp size={14} aria-hidden="true" /></button>}
 				</div>
 			</div>
 		</div>}
@@ -999,7 +1000,7 @@ export default function AgentPanel({
 		    generate an image has nothing to warn about. */}
 		{authenticated && presentation.imageHint && <p className="agent-footer-hint">{presentation.imageHint}</p>}
 
-		{lightbox && <button type="button" className="agent-lightbox" aria-label="Close image preview" onClick={() => setLightbox(null)}>
+		{lightbox && <button type="button" className="agent-lightbox" aria-label={ko("Close image preview", null, "关闭图片预览")} onClick={() => setLightbox(null)}>
 			<img src={lightbox.dataUrl} alt={lightbox.prompt || "Generated image"} />
 		</button>}
 	</aside>;

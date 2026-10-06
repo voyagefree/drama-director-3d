@@ -41,6 +41,18 @@ export function createStudioAppBinding(ports) {
 	const domainKeys = new Map(), domainRevisions = {};
 	let authoredKey, physicsKey, viewKey, observedSceneRevision = ports.revision.current;
 	let physicsRevision = 0, viewRevision = 0;
+	// Physical-fingerprint cache: dragging moves one object, so re-serializing
+	// every object every tick is pure waste. Per-object JSON fragments keyed by
+	// object identity let a drag tick recompute only the moved row; the
+	// characters fragment is keyed by the array reference (untouched by object
+	// drags). Keys stay order-stable because updateSceneObject preserves order.
+	const physObjCache = new Map();
+	let physObjKeyCache = "[]";
+	let physCharsRef = null, physCharsStr = "";
+	const projectObject = o => ({ id: o.id, renderer: o.renderer,
+		position: { x: o.x, y: o.y ?? 0, z: o.z }, rotationDeg: { x: o.rotX ?? 0, y: o.rot ?? 0, z: o.rotZ ?? 0 },
+		scale: { x: o.scaleX, y: o.scaleY, z: o.scaleZ }, footprint: o.footprint, height: o.height,
+		supportY: supportHeightForObject(o), parentId: o.parent ?? null, attachment: o.attach ?? null, path: o.path ?? null, hidden: o.hidden === true });
 	function refresh() {
 		const document = Object.assign({}, ...(ports.storeDomains?.() ?? []).map(domain => domain.document()));
 		const raw = { ...ports.read(), ...document, document };
@@ -72,12 +84,17 @@ export function createStudioAppBinding(ports) {
 			const key = JSON.stringify(content), previous = tokens.get(entry.id);
 			if (!previous || previous.key !== key) tokens.set(entry.id, { key, token: `target-${++tokenSequence}`, incarnation: previous?.incarnation ?? crypto.randomUUID() });
 		}
-		const physical = physicsFingerprintInput({ floor: { model: "flat", y: 0 }, frameCount: raw.frameCount,
-			objects: raw.objects.map(o => ({ id: o.id, renderer: o.renderer,
-				position: { x: o.x, y: o.y ?? 0, z: o.z }, rotationDeg: { x: o.rotX ?? 0, y: o.rot ?? 0, z: o.rotZ ?? 0 },
-				scale: { x: o.scaleX, y: o.scaleY, z: o.scaleZ }, footprint: o.footprint, height: o.height,
-				supportY: supportHeightForObject(o), parentId: o.parent ?? null, attachment: o.attach ?? null, path: o.path ?? null, hidden: o.hidden === true })),
-			characters: raw.characters.map(c => {
+		const liveObjIds = new Set(raw.objects.map(o => o.id));
+		for (const id of physObjCache.keys()) if (!liveObjIds.has(id)) physObjCache.delete(id);
+		for (const o of raw.objects) {
+			const row = physObjCache.get(o.id);
+			if (!row || row.ref !== o) physObjCache.set(o.id, { ref: o, str: JSON.stringify(projectObject(o)) });
+		}
+		physObjKeyCache = "[" + raw.objects.map(o => physObjCache.get(o.id).str).join(",") + "]";
+		let physCharsFragment = physCharsStr;
+		if (physCharsRef !== raw.characters) {
+			physCharsRef = raw.characters;
+			physCharsStr = JSON.stringify(raw.characters.map(c => {
 				const t = raw.targets.get(c.id), summary = characters.find(row => row.id === c.id);
 				const motionKey = motionContentKey(t?.motion), calibrationKey = calibrationContentKey(t?.motion?.sceneCalibration);
 				return { id: c.id, incarnation: tokens.get(c.id).incarnation, modelId: c.model ?? null,
@@ -87,8 +104,10 @@ export function createStudioAppBinding(ports) {
 					motionRevision: stableStamp(motionStamps, motionKey), calibrationRevision: stableStamp(calibrationStamps, calibrationKey),
 					ikRevision: ports.ikRevision(c.id, summary.ik),
 					waypoints: (c.layer?.waypoints ?? []).map(p => ({ frame: p.frame, position: { x: p.x, y: p.y ?? 0, z: p.z } })) };
-			}) });
-		const physicalKey = JSON.stringify(physical);
+			}));
+			physCharsFragment = physCharsStr;
+		}
+		const physicalKey = `{"floor":{"model":"flat","y":0},"frameCount":${raw.frameCount},"objects":${physObjKeyCache},"characters":${physCharsFragment}}`;
 		if (physicsKey !== undefined && physicsKey !== physicalKey) physicsRevision++;
 		physicsKey = physicalKey;
 		const nextViewKey = JSON.stringify([raw.selection, raw.activeCharacterId, raw.selectedShotId, raw.view, raw.camera]);
